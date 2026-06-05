@@ -1,6 +1,4 @@
-Claro. Aquí tienes un `README.md` para GitHub basado en tu archivo `mlp.py`. El código implementa un perceptrón multicapa en CircuitPython usando `ulab`, con inicialización de pesos, propagación hacia adelante, entrenamiento con backpropagation, predicción, `argmax`, guardado y carga de pesos. 
 
-````markdown
 # Perceptrón Multicapa para CircuitPython con ulab
 
 Este proyecto implementa un perceptrón multicapa sencillo para ejecutarse en una placa ESP32 con CircuitPython. Está pensado para proyectos educativos donde se desea comprender cómo funciona una red neuronal desde sus componentes básicos, pero aprovechando `ulab` para acelerar algunas operaciones numéricas.
