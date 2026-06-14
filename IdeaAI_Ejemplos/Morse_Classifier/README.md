@@ -1,4 +1,4 @@
-# 📟 Edge-Morse-Classifier: Traductor Morse con Inteligencia Artificial (CircuitPython)
+# 📟 Morse_Classifier: Traductor Morse con Inteligencia Artificial (CircuitPython)
 
 Este proyecto es un sistema interactivo de **Edge AI** desarrollado bajo el ecosistema de **CircuitPython**. Utiliza los sensores integrados de movimiento (acelerómetro y giroscopio de la placa IdeaSense / IdeaBoard) para capturar gestos físicos del usuario, clasificarlos en tiempo real como "puntos" o "rayas" de código Morse mediante una red neuronal embebida, y traducirlos a caracteres alfabéticos.
 
@@ -57,7 +57,7 @@ El corazón de la clasificación no se programó a mano con reglas fijas (`if/el
 Para mantener el proyecto organizado y facilitar su mantenimiento, los archivos se dividen de la siguiente manera en el repositorio:
 
 ```text
-edge-morse-classifier/
+Morse_Classifier/
 ├── README.md               <-- Documentación principal del proyecto
 └── traductor_morse/        <-- Subcarpeta con el software del sistema
     ├── traductor_final.py  <-- Script unificado de ejecución en la placa
