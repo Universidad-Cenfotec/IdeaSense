@@ -1,3 +1,6 @@
+# Fiorella Pérez
+# Universidad Cenfotec
+
 import board
 from ideaboard import IdeaBoard
 from ideasense import IdeaSense
