@@ -1,3 +1,6 @@
+# Fiorella Pérez
+# Universidad Cenfotec
+
 import board
 import touchio
 import time
