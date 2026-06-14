@@ -60,7 +60,7 @@ Para mantener el proyecto organizado y facilitar su mantenimiento, los archivos 
 Morse_Classifier/
 ├── README.md               <-- Documentación principal del proyecto
 └── traductor_morse/        <-- Subcarpeta con el software del sistema
-    ├── traductor_final.py  <-- Script unificado de ejecución en la placa
-    └── modelo_original.py  <-- Respaldo de los datos puros del modelo de IA
+    ├── Morce_Interface.py  <-- Script unificado de ejecución en la placa
+    └── modelo_IA.py  <-- Respaldo de los datos puros del modelo de IA
 
 ---
