@@ -2,13 +2,10 @@
 
 MakerLab - Universidad Cenfotec. Este proyecto presenta una plataforma web interactiva desarrollada para conectar de forma inalámbrica modelos de Inteligencia Artificial visual con hardware físico.
 
-## 🌐 ¡Accede a la plataforma aquí!
-
-👉 **[Teachable IdeaSense — Construye sistemas inteligentes](https://universidad-cenfotec.github.io/Libro-de-la-IA/teachable-ideasense/index.html)**
 
 ---
 
-# 🌐 La Idea Central de la Plataforma Web: **Teachable IdeaSense**
+# La Idea Central de la Plataforma Web: **Teachable IdeaSense**
 
 La plataforma **Teachable IdeaSense** funciona como un **centro de control todo en uno**, diseñado para que estudiantes y profesores puedan desarrollar proyectos de Inteligencia Artificial de forma sencilla e intuitiva.
 
@@ -40,7 +37,7 @@ El flujo general del sistema es el siguiente:
 
 ---
 
-# 🧪 Ejemplo práctico: Detector de Gestos con Pulgares
+# Ejemplo práctico: Detector de Gestos con Pulgares
 
 Actualmente la plataforma incluye un laboratorio completamente funcional para reconocer gestos con la mano.
 
