@@ -36,10 +36,3 @@ El corazón de la clasificación no se programó a mano con reglas fijas (`if/el
 * **Freno Antirrebote por Software:** Implementación de lógica por banderas (`ya_guardado_combo`) y delays estratégicos para mitigar la alta velocidad del bucle principal y evitar registros duplicados o lecturas corruptas.
 
 ---
-
-## 📁 Estructura del Repositorio y Descripción de Archivos
-
-```text
-Morse_Classifier/
-├── README.md               <-- Documentación principal del proyecto
-└── code.py                 <-- Script unificado de ejecución (Firmware, interfaz IdeaSense y modelo embebido)
