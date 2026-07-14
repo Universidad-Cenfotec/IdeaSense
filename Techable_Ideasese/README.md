@@ -233,13 +233,16 @@ Proyecto
 │
 ├── codigos/
 │   ├── index.html
-│   ├── code.py
-│   ├── statemachine.py
-│   └── demás archivos del proyecto
+│   ├──Ejemplo01
+|   ├──Ejemplo02
+|   ├──Ejemplo03
+│   └── statemachine.py
+│  
 │
 └── Modelos/
-    ├── Detector de Pulgares
-    └── Otros modelos de ejemplo
+    ├── Ejemplo01
+    └── Ejemplo02
+    └── Ejemplo03
 ```
 
 ---
