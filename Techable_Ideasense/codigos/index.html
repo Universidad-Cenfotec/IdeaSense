@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teachable IdeaSense — Construye sistemas inteligentes</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-0:#070b14;
+    --bg-1:#0c1424;
+    --surface:#121c30;
+    --surface-2:#16223a;
+    --line:#23314e;
+    --text:#e7edf6;
+    --text-dim:#8ea0bd;
+    --green:#33ffa6;
+    --green-dim:#0e3a2c;
+    --amber:#ffb23f;
+    --amber-dim:#3a2a0e;
+    --cyan:#4cc9f0;
+    --cyan-dim:#0e2a3a;
+    --red:#ff5c7a;
+    --red-dim:#3a0e1a;
+    --radius:18px;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 0%, #102035 0%, transparent 45%),
+      radial-gradient(circle at 85% 10%, #0e2a2a 0%, transparent 40%),
+      var(--bg-0);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.5;
+  }
+
+  /* faint circuit-trace background */
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:-1; opacity:.35;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(circle at 50% 0%, rgba(0,0,0,.9), transparent 70%);
+  }
+
+  a{color:var(--cyan);}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 28px;
+    background:rgba(7,11,20,.85);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.15rem; letter-spacing:.2px;}
+  .brand .dotmark{width:10px;height:10px;border-radius:50%;background:var(--green); box-shadow:0 0 10px var(--green);}
+  nav.links{display:flex; gap:22px; font-size:.92rem; color:var(--text-dim);}
+  nav.links a{color:var(--text-dim); text-decoration:none; transition:.2s;}
+  nav.links a:hover{color:var(--text);}
+  .status-pills{display:flex; gap:10px;}
+  .pill{
+    display:flex; align-items:center; gap:6px;
+    font-family:var(--font-mono); font-size:.72rem;
+    padding:5px 10px; border-radius:999px;
+    background:var(--surface); border:1px solid var(--line); color:var(--text-dim);
+  }
+  .pill .dot{width:7px;height:7px;border-radius:50%; background:var(--text-dim);}
+  .pill .dot.on{background:var(--green); box-shadow:0 0 6px var(--green);}
+  .pill .dot.off{background:var(--red); box-shadow:0 0 6px var(--red);}
+  .pill .dot.wait{background:var(--amber); box-shadow:0 0 6px var(--amber); animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+  @media (max-width:880px){
+    nav.links{display:none;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    max-width:760px; margin:0 auto;
+    padding:64px 28px 36px;
+  }
+  .eyebrow{
+    font-family:var(--font-mono); font-size:.78rem; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--green); margin-bottom:14px; display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{content:"";width:18px;height:1px;background:var(--green);}
+  .hero h1{
+    font-family:var(--font-display); font-size:clamp(2.2rem,4.2vw,3.4rem); line-height:1.05; margin:0 0 16px;
+    font-weight:700;
+  }
+  .hero h1 span{color:var(--green);}
+  .hero p.lead{color:var(--text-dim); font-size:1.05rem; max-width:520px; margin-bottom:28px;}
+  .hero-ctas{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--font-body); font-weight:600; font-size:.92rem;
+    padding:13px 22px; border-radius:12px; border:1px solid transparent;
+    cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{background:var(--green); color:#04150e;}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 8px 24px -8px var(--green);}
+  .btn-ghost{background:transparent; border-color:var(--line); color:var(--text);}
+  .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan);}
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section{max-width:1180px; margin:0 auto; padding:64px 28px;}
+  .section-head{margin-bottom:32px;}
+  .section-head .eyebrow{margin-bottom:8px;}
+  .section-head h2{font-family:var(--font-display); font-size:1.9rem; margin:0 0 8px;}
+  .section-head p{color:var(--text-dim); max-width:560px; margin:0;}
+
+  /* workflow */
+  .workflow{display:grid; grid-template-columns:repeat(4,1fr); gap:18px;}
+  .wf-step{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px; position:relative;
+  }
+  .wf-step .num{font-family:var(--font-mono); color:var(--green); font-size:.8rem;}
+  .wf-step h3{font-family:var(--font-display); font-size:1.05rem; margin:10px 0 6px;}
+  .wf-step p{color:var(--text-dim); font-size:.88rem; margin:0;}
+  .wf-step:not(:last-child)::after{
+    content:"→"; position:absolute; right:-22px; top:50%; transform:translateY(-50%);
+    color:var(--line); font-size:1.2rem;
+  }
+  @media (max-width:880px){
+    .workflow{grid-template-columns:1fr;}
+    .wf-step::after{display:none;}
+  }
+
+  /* tool cards */
+  .tools-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  .tool-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; transition:.25s;
+  }
+  .tool-card:hover{transform:translateY(-4px); border-color:var(--green);}
+  .tool-icon{
+    width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    background:var(--green-dim); color:var(--green); font-size:1.3rem; margin-bottom:14px;
+  }
+  .tool-card h3{font-family:var(--font-display); margin:0 0 6px; font-size:1.1rem;}
+  .tool-card p{color:var(--text-dim); font-size:.88rem; margin:0 0 16px;}
+  .tool-card a.link{font-family:var(--font-mono); font-size:.82rem; text-decoration:none; display:inline-flex; gap:6px; align-items:center;}
+  @media (max-width:880px){.tools-grid{grid-template-columns:1fr;}}
+
+  /* dashboard */
+  .dash-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:18px;
+    grid-template-areas:
+      "model ble ble"
+      "cam cam pred"
+      "history history console";
+  }
+  .dash-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .dash-card .card-title{display:flex; align-items:center; justify-content:space-between;}
+  .dash-card .card-title h3{font-family:var(--font-display); font-size:1rem; margin:0; display:flex; gap:8px; align-items:center;}
+  #card-model{grid-area:model;}
+  #card-ble{grid-area:ble;}
+  #card-cam{grid-area:cam;}
+  #card-pred{grid-area:pred;}
+  #card-history{grid-area:history;}
+  #card-console{grid-area:console;}
+  @media (max-width:1020px){
+    .dash-grid{grid-template-columns:1fr; grid-template-areas:"model" "ble" "cam" "pred" "history" "console";}
+  }
+
+  label.field-label{font-size:.78rem; color:var(--text-dim); font-family:var(--font-mono);}
+  input[type=text]{
+    width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--line);
+    background:var(--bg-1); color:var(--text); font-family:var(--font-mono); font-size:.85rem;
+  }
+  input[type=text]:focus{outline:2px solid var(--cyan); outline-offset:1px;}
+
+  .status-row{display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:.82rem; color:var(--text-dim);}
+  .status-row .dot{width:9px;height:9px;border-radius:50%;background:var(--text-dim);}
+  .status-row .dot.on{background:var(--green); box-shadow:0 0 8px var(--green);}
+  .status-row .dot.off{background:var(--red); box-shadow:0 0 8px var(--red);}
+  .status-row .dot.wait{background:var(--amber); animation:pulse 1.4s infinite;}
+
+  #webcam-container{display:flex; justify-content:center; min-height:220px; align-items:center; background:var(--bg-1); border-radius:12px; border:1px dashed var(--line);}
+  #webcam-container canvas{border-radius:12px; max-width:100%;}
+  .placeholder-text{color:var(--text-dim); font-size:.85rem; text-align:center; font-family:var(--font-mono); padding:20px;}
+
+  .pred-display{text-align:center; padding:8px 0;}
+  .pred-class{font-family:var(--font-display); font-size:2rem; font-weight:700; margin:6px 0;}
+  .conf-bar-track{height:8px; background:var(--bg-1); border-radius:6px; overflow:hidden; margin-top:6px;}
+  .conf-bar-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .25s;}
+  .conf-label{font-family:var(--font-mono); font-size:.78rem; color:var(--text-dim); margin-top:6px;}
+
+  .history-list, .console-list{
+    max-height:170px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;
+    font-family:var(--font-mono); font-size:.78rem;
+  }
+  .history-list::-webkit-scrollbar, .console-list::-webkit-scrollbar{width:6px;}
+  .history-list::-webkit-scrollbar-thumb, .console-list::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px;}
+  .history-item{display:flex; justify-content:space-between; padding:6px 10px; background:var(--bg-1); border-radius:8px; color:var(--text-dim);}
+  .history-item b{color:var(--text);}
+  .console-line{padding:4px 10px; border-left:2px solid var(--green); color:var(--text-dim);}
+  .console-line.err{border-left-color:var(--red);}
+
+  /* buttons inside cards */
+  .btn-block{width:100%; justify-content:center;}
+
+  /* tooltip */
+  .tip{position:relative; cursor:help; border-bottom:1px dotted var(--text-dim);}
+  .tip:hover::after{
+    content:attr(data-tip); position:absolute; bottom:130%; left:50%; transform:translateX(-50%);
+    background:var(--bg-1); border:1px solid var(--line); padding:8px 10px; border-radius:8px;
+    font-size:.74rem; color:var(--text); width:200px; z-index:20; font-family:var(--font-body);
+  }
+
+  footer{
+    border-top:1px solid var(--line); padding:30px 28px; text-align:center;
+    color:var(--text-dim); font-size:.82rem; font-family:var(--font-mono);
+  }
+
+  .toast{
+    position:fixed; bottom:24px; right:24px; z-index:100;
+    background:var(--surface-2); border:1px solid var(--green); color:var(--text);
+    padding:12px 18px; border-radius:10px; font-family:var(--font-mono); font-size:.82rem;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,.6);
+    transform:translateY(20px); opacity:0; transition:.3s; pointer-events:none;
+  }
+  .toast.show{transform:translateY(0); opacity:1;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="dotmark"></span> Teachable IdeaSense</div>
+  <nav class="links">
+    <a href="#flujo">Flujo</a>
+    <a href="#crear">Crear</a>
+    <a href="#dashboard">Dashboard</a>
+  </nav>
+  <div class="status-pills">
+    <span class="pill"><span class="dot off" id="pill-model"></span>Modelo</span>
+    <span class="pill"><span class="dot off" id="pill-ble"></span>BLE</span>
+    <span class="pill"><span class="dot off" id="pill-cam"></span>Cámara</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" style="padding-top:64px;">
+  <div>
+    <div class="eyebrow">Plataforma educativa · IA + computación física</div>
+    <h1>De una idea entrenada en IA a una <span>reacción física</span>, en tiempo real.</h1>
+    <p class="lead">Entrena un modelo en Teachable Machine, conéctalo por Bluetooth a tu IdeaBoard, y mira la predicción viajar al instante hasta tu propio sistema — exactamente como tú lo programaste.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-primary" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">Abrir el dashboard ↓</button>
+      <a class="btn btn-ghost" href="#flujo">Ver el flujo de trabajo</a>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="flujo">
+  <div class="section-head">
+    <div class="eyebrow">Cómo funciona</div>
+    <h2>Así se construye el sistema completo</h2>
+    <p>Cuatro pasos, en este orden exacto, conectan tu modelo de IA con el mundo físico.</p>
+  </div>
+  <div class="workflow">
+    <div class="wf-step"><div class="num">01</div><h3>Entrena</h3><p>Crea un modelo de imágenes, sonido o pose en Teachable Machine.</p></div>
+    <div class="wf-step"><div class="num">02</div><h3>Conecta el modelo</h3><p>Pega la URL pública de tu modelo entrenado en esta página.</p></div>
+    <div class="wf-step"><div class="num">03</div><h3>Empareja por BLE</h3><p>Conecta tu IdeaBoard vía Bluetooth Low Energy.</p></div>
+    <div class="wf-step"><div class="num">04</div><h3>Observa el sistema reaccionar</h3><p>La predicción llega por Bluetooth a tu IdeaBoard, y tu IdeaSense conectada a ella reacciona.</p></div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="crear">
+  <div class="section-head">
+    <div class="eyebrow">Caja de herramientas</div>
+    <h2>Crea y programa</h2>
+    <p>Tres herramientas externas, cada una para una etapa distinta de la construcción.</p>
+  </div>
+  <div class="tools-grid">
+    <div class="tool-card">
+      <div class="tool-icon">◎</div>
+      <h3>Entrenar IA</h3>
+      <p>Crea modelos con imágenes, sonidos o poses usando Google Teachable Machine.</p>
+      <a class="link" href="https://teachablemachine.withgoogle.com/" target="_blank">Abrir Teachable Machine →</a>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">▦</div>
+      <h3>Programar por bloques</h3>
+      <p>Programa el comportamiento de tu IdeaBoard arrastrando bloques visuales.</p>
+      <a class="link" href="https://ideascratch.crcibernetica.com/" target="_blank">Abrir IdeaScratch →</a>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">⌁</div>
+      <h3>Programar con Python</h3>
+      <p>Lleva el control de tu IdeaBoard a otro nivel con CircuitPython.</p>
+      <a class="link" href="https://ideacode.crcibernetica.com/" target="_blank">Abrir IdeaCode →</a>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard">
+  <div class="section-head">
+    <div class="eyebrow">Panel de control en vivo</div>
+    <h2>Dashboard</h2>
+    <p>Carga tu modelo, conecta tu placa y observa cada señal del sistema en un solo lugar.</p>
+  </div>
+
+  <div class="dash-grid">
+
+    <div class="dash-card" id="card-model">
+      <div class="card-title"><h3>📦 Modelo</h3></div>
+      <label class="field-label" for="modelURL">URL del modelo Teachable Machine</label>
+      <input type="text" id="modelURL" value="https://teachablemachine.withgoogle.com/models/8PFBVe19l/" placeholder="https://teachablemachine.withgoogle.com/models/…">
+      <button class="btn btn-primary btn-block" onclick="cargarModelo()">Cargar modelo</button>
+      <div class="status-row"><span class="dot off" id="modelDot"></span><span id="modelStatus">Modelo no cargado</span></div>
+    </div>
+
+    <div class="dash-card" id="card-ble">
+      <div class="card-title"><h3>🔵 IdeaBoard · BLE</h3></div>
+      <p style="color:var(--text-dim); font-size:.85rem; margin:0;">
+        Conecta tu placa por <span class="tip" data-tip="Web Bluetooth requiere Chrome o Edge, y solo funciona en conexiones HTTPS o localhost.">Web Bluetooth</span> para enviar cada predicción en tiempo real.
+      </p>
+      <button class="btn btn-primary btn-block" onclick="conectarBLE()">Conectar Bluetooth</button>
+      <div class="status-row"><span class="dot off" id="bleDot"></span><span id="bleStatus">Desconectado</span></div>
+    </div>
+
+    <div class="dash-card" id="card-cam">
+      <div class="card-title"><h3>📷 Cámara en vivo</h3></div>
+      <div id="webcam-container"><div class="placeholder-text">Carga un modelo para activar la cámara</div></div>
+      <div class="status-row"><span class="dot off" id="camDot"></span><span id="camStatus">Cámara inactiva</span></div>
+    </div>
+
+    <div class="dash-card" id="card-pred">
+      <div class="card-title"><h3>🎯 Predicción</h3></div>
+      <div class="pred-display">
+        <div class="pred-class" id="predictionClass">—</div>
+        <div class="conf-bar-track"><div class="conf-bar-fill" id="confBar"></div></div>
+        <div class="conf-label" id="predictionConfidence">0% de confianza</div>
+      </div>
+    </div>
+
+    <div class="dash-card" id="card-history">
+      <div class="card-title"><h3>🕓 Historial de predicciones</h3></div>
+      <div class="history-list" id="historyList">
+        <div class="history-item" style="opacity:.5;">Sin predicciones todavía</div>
+      </div>
+    </div>
+
+    <div class="dash-card" id="card-console">
+      <div class="card-title"><h3>🛰 Consola de eventos BLE</h3></div>
+      <div class="console-list" id="consoleList">
+        <div class="console-line" style="opacity:.5;">Esperando conexión…</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  Teachable IdeaSense — de un modelo entrenado a una placa que reacciona.
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- TOAST ---------- */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=> t.classList.remove('show'), 2600);
+}
+
+/* ---------- STATUS HELPERS ---------- */
+function setStatus(kind, state, label){
+  // kind: model | ble | cam   state: on|off|wait
+  document.getElementById(kind+'Dot').className = 'dot ' + state;
+  document.getElementById(kind+'Status').textContent = label;
+  const pill = document.getElementById('pill-'+kind);
+  if(pill) pill.className = 'dot ' + state;
+}
+
+function logConsole(text, isErr){
+  const list = document.getElementById('consoleList');
+  if(list.children.length===1 && list.children[0].style.opacity==='0.5') list.innerHTML='';
+  const line = document.createElement('div');
+  line.className = 'console-line' + (isErr? ' err':'');
+  const time = new Date().toLocaleTimeString();
+  line.textContent = `[${time}] ${text}`;
+  list.prepend(line);
+}
+
+function addHistory(className, prob){
+  const list = document.getElementById('historyList');
+  if(list.children.length===1 && list.children[0].style.opacity==='0.5') list.innerHTML='';
+  const item = document.createElement('div');
+  item.className = 'history-item';
+  const time = new Date().toLocaleTimeString();
+  item.innerHTML = `<span>${time}</span><b>${className} · ${(prob*100).toFixed(0)}%</b>`;
+  list.prepend(item);
+  while(list.children.length>12) list.removeChild(list.lastChild);
+}
+
+/* ---------- TEACHABLE MACHINE ---------- */
+let model, webcam, bleCharacteristic, ultimaClase = "";
+
+async function cargarModelo(){
+  try{
+    setStatus('model','wait','Cargando modelo…');
+    let baseURL = document.getElementById("modelURL").value.trim().replace(/\/+$/, '');
+    const modelURL = baseURL + "/model.json";
+    const metadataURL = baseURL + "/metadata.json";
+
+    model = await tmImage.load(modelURL, metadataURL);
+
+    webcam = new tmImage.Webcam(360, 270, true);
+    await webcam.setup();
+    await webcam.play();
+
+    const contenedor = document.getElementById("webcam-container");
+    contenedor.innerHTML = "";
+    contenedor.appendChild(webcam.canvas);
+
+    setStatus('model','on','Modelo cargado correctamente');
+    setStatus('cam','on','Cámara activa');
+    toast('Modelo cargado · inferencia iniciada');
+    logConsole('Modelo cargado: ' + baseURL);
+
+    window.requestAnimationFrame(loop);
+  } catch(error){
+    console.error(error);
+    setStatus('model','off','Error cargando el modelo');
+    logConsole('Error al cargar modelo: ' + error.message, true);
+    toast('No se pudo cargar el modelo');
+  }
+}
+
+async function loop(){
+  webcam.update();
+  const prediction = await model.predict(webcam.canvas);
+
+  let mejor = "", prob = 0;
+  prediction.forEach(p => { if(p.probability > prob){ prob = p.probability; mejor = p.className; } });
+
+  document.getElementById("predictionClass").textContent = mejor || '—';
+  document.getElementById("predictionConfidence").textContent = (prob*100).toFixed(1) + '% de confianza';
+  document.getElementById("confBar").style.width = (prob*100).toFixed(0) + '%';
+
+  if(mejor !== ultimaClase && prob > 0.8){
+    ultimaClase = mejor;
+    addHistory(mejor, prob);
+    enviarBLE(mejor);
+  }
+
+  requestAnimationFrame(loop);
+}
+
+/* ---------- BLE ---------- */
+async function conectarBLE(){
+  try{
+    setStatus('ble','wait','Buscando dispositivos…');
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
+    });
+
+    logConsole('Dispositivo seleccionado: ' + (device.name || 'sin nombre'));
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+    bleCharacteristic = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
+
+    setStatus('ble','on','IdeaBoard conectada');
+    toast('IdeaBoard conectada por Bluetooth');
+    logConsole('Conexión GATT establecida');
+
+    device.addEventListener('gattserverdisconnected', () => {
+      setStatus('ble','off','Desconectado');
+      logConsole('IdeaBoard desconectada', true);
+    });
+
+  } catch(error){
+    console.error(error);
+    setStatus('ble','off','Error de conexión Bluetooth');
+    logConsole('Error BLE: ' + error.message, true);
+    toast('No se pudo conectar por Bluetooth');
+  }
+}
+
+async function enviarBLE(texto){
+  if(!bleCharacteristic) return;
+  try{
+    const encoder = new TextEncoder();
+    await bleCharacteristic.writeValue(encoder.encode(texto + "\n"));
+    logConsole('Enviado → ' + texto);
+  } catch(error){
+    logConsole('Error al enviar: ' + error.message, true);
+  }
+}
+</script>
+
+</body>
+</html>
