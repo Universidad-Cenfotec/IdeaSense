@@ -1,6 +1,6 @@
 # 🤖 Construye sistemas inteligentes
 
-MakerLab - Universidad Cenfotec. Este proyecto presenta una plataforma web interactiva desarrollada para conectar de forma inalámbrica modelos de Inteligencia Artificial visual con hardware físico.
+Universidad Cenfotec. Este proyecto presenta una plataforma web interactiva desarrollada para conectar de forma inalámbrica modelos de Inteligencia Artificial visual con hardware físico.
 
 
 ---
