@@ -7,7 +7,7 @@ Universidad Cenfotec. Este proyecto presenta una plataforma web interactiva desa
 
 # La Idea Central de la Plataforma Web: **Teachable IdeaSense**
 
-La plataforma **Teachable IdeaSense** funciona como un **centro de control todo en uno**, diseñado para que estudiantes y profesores puedan desarrollar proyectos de Inteligencia Artificial de forma sencilla e intuitiva.
+La plataforma **Teachable IdeaSense** funciona como un **centro de control todo en uno**, diseñado para desarrollar proyectos de Inteligencia Artificial de forma sencilla e intuitiva.
 
 En lugar de utilizar múltiples aplicaciones independientes, la plataforma integra en un solo lugar:
 
