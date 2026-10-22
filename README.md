@@ -8,6 +8,11 @@ Repositorio de documentos y ejemplos IdeaBoard-IdeaSense
        width="700">
 </p>
 
+## Plataformas de programación
+
+- [IA, ciencias y programación](https://universidad-cenfotec.github.io/IdeaSense/)
+
+
 ## Comparación con Micro:bit 
 
 | Criterio | micro:bit | IdeaBoard \+ IdeaSense |
