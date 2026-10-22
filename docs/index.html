@@ -1,1 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Herramientas IdeaSense</title>
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#fff; --ink:#1b1f24; --muted:#5f6975; --line:#e1e4e8; --accent:#1f6feb; --tag:#eef3fd;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f1216; --panel:#171b21; --ink:#e6e9ed; --muted:#9aa4af; --line:#2a3038; --accent:#4c8dff; --tag:#1d2a3f; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1040px;margin:0 auto;padding:40px 20px 56px}
+header h1{font-size:30px;margin:0 0 6px}
+header p{color:var(--muted);margin:0 0 28px;max-width:720px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.card{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.icon{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-size:22px;flex:none}
+.card h2{font-size:19px;margin:0}
+.card .sub{font-size:13px;color:var(--muted)}
+.card p{margin:0 0 12px;font-size:15px}
+.card ul{margin:0 0 14px;padding-left:18px;font-size:14px;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.tags span{font-size:12px;background:var(--tag);color:var(--accent);padding:3px 9px;border-radius:999px}
+.go{margin-top:14px;font-size:14px;font-weight:600;color:var(--accent)}
+.req{margin-top:32px;font-size:14px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+footer{margin-top:28px;font-size:13px;color:var(--muted)}
+footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Herramientas IdeaBoard + IdeaSense</h1>
+    <p>Aplicaciones web para trabajar con la IdeaBoard y el IdeaSense Explorer desde el navegador: medir y experimentar, programar con bloques y entrenar modelos de inteligencia artificial. Conecta la tarjeta por USB y abre la herramienta que necesites.</p>
+  </header>
 
+  <section class="grid" id="tools"></section>
+
+  <div class="req"><b>Requisitos:</b> Chrome o Edge en una computadora (Windows, macOS, Linux o ChromeOS) y un cable USB que transmita datos. Usa una sola herramienta a la vez: si una está conectada a la tarjeta, las demás no podrán abrir el puerto.</div>
+
+  <footer>Universidad CENFOTEC · <a href="https://github.com/Universidad-Cenfotec/IdeaSense">Repositorio IdeaSense</a></footer>
+</main>
+
+<script>
+// ---------------------------------------------------------------------------
+// Para agregar una herramienta nueva, copia uno de estos bloques y edítalo.
+// La página genera las tarjetas en el mismo orden de esta lista.
+//   url:    enlace (relativo, p. ej. "carpeta/", si está en este mismo sitio)
+//   icon:   un emoji;  color: fondo del ícono
+//   puntos: lista corta de lo que se puede hacer (opcional)
+//   tags:   etiquetas (opcional)
+// ---------------------------------------------------------------------------
+const HERRAMIENTAS = [
+  {
+    nombre: "IdeaSense Ciencias",
+    sub: "Laboratorio de sensores en vivo",
+    url: "ideaciencia/",
+    icon: "🔬", color: "#e3f4ea",
+    texto: "Conecta la tarjeta por USB y mira de inmediato todos los sensores del IdeaSense, en números y en gráficos que se actualizan en tiempo real.",
+    puntos: [
+      "Acelerómetro y giroscopio en 3 ejes",
+      "Temperatura, humedad relativa y luz",
+      "Botones A, B y C como marcas de experimento",
+      "Descarga de los datos en CSV para analizarlos"
+    ],
+    tags: ["Ciencias", "Medición", "Sin instalar nada"]
+  },
+  {
+    nombre: "IdeaAI",
+    sub: "Entrenar modelos de gestos",
+    url: "https://ideaai.crcibernetica.com/",
+    icon: "🧠", color: "#ece6fb",
+    texto: "Graba ejemplos de movimientos con el acelerómetro y el giroscopio, entrena un modelo de clasificación en el navegador y pruébalo en vivo.",
+    puntos: [
+      "Crear clases de gestos y grabar muestras",
+      "Entrenar y probar el modelo en tiempo real",
+      "Exportar el modelo como code.py para que corra en la tarjeta"
+    ],
+    tags: ["Inteligencia artificial", "Aprendizaje automático"]
+  },
+  {
+    nombre: "IdeaScratch",
+    sub: "Programación por bloques",
+    url: "https://ideascratch.crcibernetica.com/",
+    icon: "🧩", color: "#fdeedd",
+    texto: "Programa la IdeaBoard y el IdeaSense uniendo bloques, al estilo Scratch, sin necesidad de escribir código. Ideal para comenzar.",
+    puntos: [
+      "Programación visual con bloques",
+      "Primeros pasos con sensores, matriz LED y botones"
+    ],
+    tags: ["Programación", "Principiantes"]
+  },
+  // { nombre: "", sub: "", url: "", icon: "", color: "", texto: "", puntos: [], tags: [] },
+];
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+document.getElementById("tools").innerHTML = HERRAMIENTAS.map(h => {
+  const externo = /^https?:/.test(h.url);
+  return `<a class="card" href="${esc(h.url)}"${externo ? ' target="_blank" rel="noopener"' : ""}>
+    <div class="top"><div class="icon" style="background:${esc(h.color)}">${esc(h.icon)}</div>
+      <div><h2>${esc(h.nombre)}</h2><div class="sub">${esc(h.sub)}</div></div></div>
+    <p>${esc(h.texto)}</p>
+    ${h.puntos?.length ? `<ul>${h.puntos.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+    ${h.tags?.length ? `<div class="tags">${h.tags.map(t => `<span>${esc(t)}</span>`).join("")}</div>` : ""}
+    <div class="go">Abrir ${externo ? "↗" : "→"}</div>
+  </a>`;
+}).join("");
+</script>
+</body>
+</html>
