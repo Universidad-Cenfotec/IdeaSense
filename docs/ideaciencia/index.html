@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IdeaSense Ciencias</title>
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b1f24; --muted:#66707c; --line:#e1e4e8; --grid:#eceef1;
+  --accent:#1f6feb; --ok:#1a7f37; --warn:#b7791f; --err:#cf222e;
+  --x:#d1495b; --y:#2a9d5c; --z:#3a6fd8; --temp:#e07a1f; --hum:#1c9aa8; --lux:#c9a400;
+  --bA:#d1495b; --bB:#2a9d5c; --bC:#3a6fd8;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f1216; --panel:#171b21; --ink:#e6e9ed; --muted:#9aa4af; --line:#2a3038; --grid:#222830;
+    --accent:#4c8dff; --x:#ff6b7d; --y:#4cc985; --z:#6f9bff; --temp:#ff9a45; --hum:#3cc4d3; --lux:#f0cb2b;
+    --bA:#ff6b7d; --bB:#4cc985; --bC:#6f9bff; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+h1{font-size:19px;margin:0;font-weight:650}
+h1 small{font-weight:400;color:var(--muted);font-size:13px;margin-left:6px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button:disabled{opacity:.45;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.pill i{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.pill.ok i{background:var(--ok)} .pill.busy i{background:var(--warn)} .pill.err i{background:var(--err)}
+main{max-width:1280px;margin:0 auto;padding:18px 20px 40px}
+.notice{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:14px}
+.notice.err{border-left-color:var(--err)}
+.notice b{font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.card .val{font-size:30px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:2px}
+.card .val span{font-size:15px;font-weight:400;color:var(--muted);margin-left:3px}
+.card .mm{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.btns{display:flex;gap:10px;margin-top:8px}
+.btn{flex:1;text-align:center;border:2px solid var(--line);border-radius:10px;padding:6px 0;font-weight:700;font-size:18px;transition:background .05s}
+.btn small{display:block;font-size:11px;font-weight:400;color:var(--muted)}
+.btn.on{color:#fff} .btn.on small{color:#fff}
+#bA.on{background:var(--bA);border-color:var(--bA)} #bB.on{background:var(--bB);border-color:var(--bB)} #bC.on{background:var(--bC);border-color:var(--bC)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:12px}
+.chart{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px 6px}
+.chart .head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.chart h2{font-size:14px;margin:0;font-weight:600}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.legend b{display:inline-block;width:10px;height:3px;border-radius:2px;vertical-align:middle;margin-right:4px}
+canvas{width:100%;height:190px;display:block}
+.row{display:flex;gap:10px;align-items:center;margin:14px 0 10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+details{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+summary{cursor:pointer;font-weight:600;font-size:14px}
+#log{font:12px/1.45 ui-monospace,Consolas,monospace;max-height:240px;overflow:auto;white-space:pre-wrap;margin:10px 0 0;color:var(--muted)}
+.help li{margin:4px 0}
+@media (max-width:520px){ .charts{grid-template-columns:1fr} header{padding:12px 16px} main{padding:14px 16px 30px} }
+</style>
+</head>
+<body>
+<header>
+  <h1>IdeaSense Ciencias <small>IdeaBoard + IdeaSense por USB</small></h1>
+  <div class="bar">
+    <span id="status" class="pill"><i></i><span>Desconectado</span></span>
+    <button id="btnConn" class="primary">Conectar IdeaBoard</button>
+    <button id="btnDemo">Demo</button>
+    <button id="btnPause" disabled>Pausar</button>
+    <button id="btnCsv" disabled>Descargar CSV</button>
+    <button id="btnClear">Limpiar</button>
+  </div>
+</header>
+
+<main>
+  <div id="notice" class="notice">
+    Conecta la IdeaBoard con el IdeaSense por USB y pulsa <b>Conectar IdeaBoard</b>. La página carga un programa de lectura en la memoria de la tarjeta, sin guardar nada en ella: al desconectar, la tarjeta vuelve a su <code>code.py</code>. Funciona en Chrome o Edge de escritorio. Cierra antes IdeaCode o Thonny.
+  </div>
+
+  <section class="cards">
+    <div class="card"><div class="lbl">Temperatura</div><div class="val" id="vT">–<span>°C</span></div><div class="mm" id="mT">&nbsp;</div></div>
+    <div class="card"><div class="lbl">Humedad relativa</div><div class="val" id="vH">–<span>%</span></div><div class="mm" id="mH">&nbsp;</div></div>
+    <div class="card"><div class="lbl">Luz (visible + IR)</div><div class="val" id="vL">–<span>cuentas</span></div><div class="mm" id="mL">&nbsp;</div></div>
+    <div class="card"><div class="lbl">Aceleración total |a|</div><div class="val" id="vA">–<span>m/s²</span></div><div class="mm" id="mA">&nbsp;</div></div>
+    <div class="card"><div class="lbl">Botones</div>
+      <div class="btns">
+        <div class="btn" id="bA">A<small id="cA">0</small></div>
+        <div class="btn" id="bB">B<small id="cB">0</small></div>
+        <div class="btn" id="bC">C<small id="cC">0</small></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="row">
+    Ventana movimiento:
+    <select id="winImu"><option value="5">5 s</option><option value="10" selected>10 s</option><option value="30">30 s</option></select>
+    Ventana ambiente:
+    <select id="winEnv"><option value="60">1 min</option><option value="300" selected>5 min</option><option value="900">15 min</option><option value="3600">1 h</option></select>
+    <span id="rate"></span>
+  </div>
+
+  <section class="charts">
+    <div class="chart"><div class="head"><h2>Acelerómetro (m/s²)</h2><div class="legend" id="lgA"></div></div><canvas id="cvA"></canvas></div>
+    <div class="chart"><div class="head"><h2>Giroscopio (rad/s)</h2><div class="legend" id="lgG"></div></div><canvas id="cvG"></canvas></div>
+    <div class="chart"><div class="head"><h2>Temperatura (°C)</h2><div class="legend" id="lgT"></div></div><canvas id="cvT"></canvas></div>
+    <div class="chart"><div class="head"><h2>Humedad relativa (%)</h2><div class="legend" id="lgH"></div></div><canvas id="cvH"></canvas></div>
+    <div class="chart"><div class="head"><h2>Luz (cuentas)</h2><div class="legend" id="lgL"></div></div><canvas id="cvL"></canvas></div>
+  </section>
+  <p class="row">Cada vez que se presiona A, B o C aparece una línea vertical en los gráficos: sirve para marcar el inicio de un experimento.</p>
+
+  <details>
+    <summary>Registro y diagnóstico</summary>
+    <label class="row"><input type="checkbox" id="raw"> Mostrar datos crudos</label>
+    <pre id="log"></pre>
+  </details>
+
+  <details class="help">
+    <summary>Si no conecta</summary>
+    <ul>
+      <li><b>No aparece el puerto:</b> revisa que el cable USB transmita datos. En Windows o macOS puede faltar el controlador del chip CH340 de la tarjeta (el mismo que usa IdeaCode).</li>
+      <li><b>“Puerto ocupado”:</b> cierra IdeaCode, Thonny u otra pestaña conectada a la tarjeta.</li>
+      <li><b>“No se detecta el IdeaSense”:</b> revisa el cable STEMMA QT/QWIIC entre la IdeaBoard y el IdeaSense, y vuelve a conectar.</li>
+      <li><b>Falta la librería ideasense:</b> la tarjeta necesita en <code>/lib</code> los archivos del repositorio CRCibernetica/circuitpython-ideaboard (vienen instalados de fábrica).</li>
+      <li>La página debe abrirse por <code>https://</code> o <code>localhost</code>; con doble clic sobre el archivo también funciona en Chrome.</li>
+    </ul>
+  </details>
+</main>
+
+<script>
+"use strict";
+// ---------------------------------------------------------------------------
+// Programa que se ejecuta en la tarjeta (raw REPL, solo en RAM).
+// Líneas que imprime:
+//   I,t_ms,ax,ay,az,gx,gy,gz,ABC     movimiento + botones, ~25 Hz
+//   E,t_ms,temp,hum,luz              ambiente, 1 Hz
+//   #texto                           mensajes
+// ---------------------------------------------------------------------------
+const BOARD_SCRIPT = `
+import time
+from ideasense import IdeaSense
+idea = IdeaSense()
+idea.matrix.fill(0)
+idea.matrix.show()
+print("#OK IdeaSense listo")
+t0 = time.monotonic()
+tenv = -10.0
+tbeat = 0.0
+beat = 0
+while True:
+    now = time.monotonic()
+    ms = int((now - t0) * 1000)
+    if now - tenv >= 1.0:
+        tenv = now
+        try:
+            T = idea.temp
+            H = idea.humid
+        except Exception:
+            T = -999.0
+            H = -999.0
+        try:
+            L = idea.light
+        except Exception:
+            L = -1
+        print("E,%d,%.2f,%.1f,%d" % (ms, T, H, L))
+    ax, ay, az = idea.accel
+    gx, gy, gz = idea.gyro
+    b = idea.held
+    print("I,%d,%.3f,%.3f,%.3f,%.4f,%.4f,%.4f,%d%d%d" % (ms, ax, ay, az, gx, gy, gz, int(b[0]), int(b[1]), int(b[2])))
+    if now - tbeat >= 0.5:
+        tbeat = now
+        beat = 1 - beat
+        idea.matrix[4, 4] = beat
+        idea.matrix.show()
+    time.sleep(0.03)
+`;
+
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+// --------------------------- registro ---------------------------
+function log(msg){
+  const el = $("log");
+  const t = new Date().toLocaleTimeString();
+  el.textContent += `[${t}] ${msg}\n`;
+  if (el.textContent.length > 40000) el.textContent = el.textContent.slice(-30000);
+  el.scrollTop = el.scrollHeight;
+}
+function setStatus(text, kind){
+  $("status").className = "pill " + (kind || "");
+  $("status").querySelector("span").textContent = text;
+}
+function notice(html, isErr){
+  const n = $("notice"); n.innerHTML = html; n.className = "notice" + (isErr ? " err" : ""); n.style.display = html ? "" : "none";
+}
+
+// --------------------------- datos ---------------------------
+let imu = [], env = [], marks = [];
+let lastButtons = [0,0,0], counts = [0,0,0];
+let paused = false, dirty = true, lastRx = 0, nImu = 0, rateT = performance.now();
+const MAX_IMU = 120000, MAX_ENV = 20000;
+const stats = {T:[Infinity,-Infinity], H:[Infinity,-Infinity], L:[Infinity,-Infinity], A:[Infinity,-Infinity]};
+let latestEnv = {T:null,H:null,L:null};
+
+function upd(k, v){ const s = stats[k]; if (v < s[0]) s[0] = v; if (v > s[1]) s[1] = v; }
+
+function handleLine(line){
+  line = line.trim();
+  if (!line) return;
+  lastRx = performance.now();
+  if ($("raw").checked) log("« " + line);
+  if (line[0] === "#"){ log("Tarjeta: " + line.slice(1).trim()); if (line.startsWith("#OK")) onReady(); return; }
+  const p = line.split(",");
+  if (p[0] === "I" && p.length === 9){
+    const v = p.slice(1, 8).map(Number);
+    if (v.some(isNaN)) return;
+    const b = [...p[8]].map(c => c === "1" ? 1 : 0);
+    const t = v[0] / 1000;
+    const mag = Math.hypot(v[1], v[2], v[3]);
+    for (let k = 0; k < 3; k++){
+      if (b[k] && !lastButtons[k]){ counts[k]++; marks.push({t, k}); log("Botón " + "ABC"[k] + " presionado (t = " + t.toFixed(2) + " s)"); }
+    }
+    lastButtons = b;
+    nImu++;
+    if (paused) { showButtons(b); return; }
+    imu.push({t, ax:v[1], ay:v[2], az:v[3], gx:v[4], gy:v[5], gz:v[6], a:mag, b, T:latestEnv.T, H:latestEnv.H, L:latestEnv.L});
+    if (imu.length > MAX_IMU) imu.splice(0, imu.length - MAX_IMU);
+    upd("A", mag);
+    showButtons(b);
+    $("vA").firstChild.nodeValue = mag.toFixed(2);
+    $("mA").textContent = `mín ${stats.A[0].toFixed(2)} · máx ${stats.A[1].toFixed(2)}`;
+    dirty = true;
+  } else if (p[0] === "E" && p.length === 5){
+    const v = p.slice(1).map(Number);
+    if (v.some(isNaN)) return;
+    const t = v[0] / 1000, T = v[1] > -900 ? v[1] : null, H = v[2] > -900 ? v[2] : null, L = v[3] >= 0 ? v[3] : null;
+    latestEnv = {T, H, L};
+    if (paused) return;
+    env.push({t, T, H, L});
+    if (env.length > MAX_ENV) env.shift();
+    if (T !== null){ upd("T", T); $("vT").firstChild.nodeValue = T.toFixed(1); $("mT").textContent = `mín ${stats.T[0].toFixed(1)} · máx ${stats.T[1].toFixed(1)}`; }
+    if (H !== null){ upd("H", H); $("vH").firstChild.nodeValue = H.toFixed(1); $("mH").textContent = `mín ${stats.H[0].toFixed(1)} · máx ${stats.H[1].toFixed(1)}`; }
+    if (L !== null){ upd("L", L); $("vL").firstChild.nodeValue = L.toLocaleString("es-CR"); $("mL").textContent = `mín ${stats.L[0]} · máx ${stats.L[1]}`; }
+    dirty = true;
+  }
+}
+function showButtons(b){
+  ["bA","bB","bC"].forEach((id, k) => $(id).classList.toggle("on", !!b[k]));
+  ["cA","cB","cC"].forEach((id, k) => $(id).textContent = counts[k] + (counts[k] === 1 ? " vez" : " veces"));
+}
+function clearData(){
+  imu = []; env = []; marks = []; counts = [0,0,0];
+  for (const k in stats) stats[k] = [Infinity, -Infinity];
+  ["vT","vH","vL","vA"].forEach(id => $(id).firstChild.nodeValue = "–");
+  ["mT","mH","mL","mA"].forEach(id => $(id).innerHTML = "&nbsp;");
+  showButtons([0,0,0]); dirty = true;
+}
+
+// --------------------------- gráficos ---------------------------
+const CHARTS = [
+  {cv:"cvA", lg:"lgA", src:"imu", win:"winImu", series:[["ax","x","--x"],["ay","y","--y"],["az","z","--z"]], dec:2, zero:true},
+  {cv:"cvG", lg:"lgG", src:"imu", win:"winImu", series:[["gx","x","--x"],["gy","y","--y"],["gz","z","--z"]], dec:3, zero:true},
+  {cv:"cvT", lg:"lgT", src:"env", win:"winEnv", series:[["T","°C","--temp"]], dec:1, minSpan:1},
+  {cv:"cvH", lg:"lgH", src:"env", win:"winEnv", series:[["H","%","--hum"]], dec:1, minSpan:2},
+  {cv:"cvL", lg:"lgL", src:"env", win:"winEnv", series:[["L","cuentas","--lux"]], dec:0, minSpan:10},
+];
+
+function firstIndex(arr, t){ let lo = 0, hi = arr.length; while (lo < hi){ const m = (lo + hi) >> 1; if (arr[m].t < t) lo = m + 1; else hi = m; } return lo; }
+function niceStep(span){ const raw = span / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p; }
+function fmtTime(s){ if (s < 120) return s.toFixed(0) + " s"; const m = Math.floor(s / 60), r = Math.round(s % 60); return m + ":" + String(r).padStart(2, "0"); }
+
+function drawChart(c){
+  const cv = $(c.cv), dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const data = c.src === "imu" ? imu : env;
+  const win = Number($(c.win).value);
+  const tEnd = data.length ? data[data.length - 1].t : win, tStart = tEnd - win;
+  const i0 = Math.max(0, firstIndex(data, tStart) - 1);
+  let lo = Infinity, hi = -Infinity;
+  for (let i = i0; i < data.length; i++) for (const [k] of c.series){ const v = data[i][k]; if (v === null || v === undefined) continue; if (v < lo) lo = v; if (v > hi) hi = v; }
+  if (!isFinite(lo)) { lo = 0; hi = 1; }
+  if (c.zero){ lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+  const span = Math.max(hi - lo, c.minSpan || (c.zero ? 0.5 : 1e-3));
+  const mid = (hi + lo) / 2; lo = mid - span * 0.55; hi = mid + span * 0.55;
+  const L = 46, R = 8, T = 8, B = 22, pw = W - L - R, ph = H - T - B;
+  const X = t => L + (t - tStart) / win * pw, Y = v => T + (hi - v) / (hi - lo) * ph;
+  g.font = "11px system-ui, sans-serif"; g.textBaseline = "middle";
+  // rejilla horizontal
+  const step = niceStep(hi - lo);
+  g.strokeStyle = css("--grid"); g.fillStyle = css("--muted"); g.lineWidth = 1; g.textAlign = "right";
+  for (let v = Math.ceil(lo / step) * step; v <= hi; v += step){
+    const y = Math.round(Y(v)) + .5; g.beginPath(); g.moveTo(L, y); g.lineTo(W - R, y); g.stroke();
+    g.fillText(v.toFixed(step < 1 ? (step < 0.1 ? 2 : 1) : 0), L - 6, y);
+  }
+  if (c.zero && lo < 0 && hi > 0){ g.strokeStyle = css("--line"); g.lineWidth = 1.5; const y = Math.round(Y(0)) + .5; g.beginPath(); g.moveTo(L, y); g.lineTo(W - R, y); g.stroke(); }
+  // eje de tiempo
+  g.textAlign = "center"; g.textBaseline = "top"; g.fillStyle = css("--muted");
+  const tstep = niceStep(win) * 1;
+  for (let t = Math.ceil(tStart / tstep) * tstep; t <= tEnd; t += tstep){ if (t < 0) continue; g.fillText(fmtTime(t), X(t), H - B + 5); }
+  // marcas de botones
+  for (const m of marks){ if (m.t < tStart || m.t > tEnd) continue; const x = Math.round(X(m.t)) + .5; g.strokeStyle = css(["--bA","--bB","--bC"][m.k]); g.setLineDash([4, 3]); g.lineWidth = 1.2; g.beginPath(); g.moveTo(x, T); g.lineTo(x, T + ph); g.stroke(); g.setLineDash([]); g.fillStyle = g.strokeStyle; g.textAlign = "left"; g.textBaseline = "top"; g.fillText("ABC"[m.k], x + 3, T + 1); }
+  // series
+  g.save(); g.beginPath(); g.rect(L, T, pw, ph); g.clip();
+  for (const [k, , col] of c.series){
+    g.strokeStyle = css(col); g.lineWidth = 1.8; g.lineJoin = "round"; g.beginPath(); let pen = false;
+    for (let i = i0; i < data.length; i++){ const v = data[i][k]; if (v === null || v === undefined){ pen = false; continue; } const x = X(data[i].t), y = Y(v); if (pen) g.lineTo(x, y); else { g.moveTo(x, y); pen = true; } }
+    g.stroke();
+    if (c.src === "env" && data.length){ const d = data[data.length - 1]; if (d[k] !== null){ g.fillStyle = g.strokeStyle; g.beginPath(); g.arc(X(d.t), Y(d[k]), 3, 0, 7); g.fill(); } }
+  }
+  g.restore();
+  // leyenda con valor actual
+  const last = data[data.length - 1];
+  $(c.lg).innerHTML = c.series.map(([k, name, col]) => `<span><b style="background:${css(col)}"></b>${name} ${last && last[k] !== null && last[k] !== undefined ? last[k].toFixed(c.dec) : "–"}</span>`).join("");
+}
+function frame(){
+  if (dirty){ dirty = false; CHARTS.forEach(drawChart); }
+  const now = performance.now();
+  if (now - rateT > 1000){
+    $("rate").textContent = (port || demoTimer) ? `${Math.round(nImu * 1000 / (now - rateT))} muestras/s` : "";
+    if (port && streaming && lastRx && now - lastRx > 4000) { log("Aviso: más de 4 s sin datos de la tarjeta."); lastRx = now; }
+    nImu = 0; rateT = now;
+  }
+  requestAnimationFrame(frame);
+}
+["winImu","winEnv"].forEach(id => $(id).onchange = () => dirty = true);
+window.addEventListener("resize", () => dirty = true);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => dirty = true);
+
+// --------------------------- Web Serial + raw REPL ---------------------------
+let port = null, reader = null, writer = null, rx = "", mode = "idle", streaming = false, stopping = false;
+const decoder = new TextDecoder();
+
+async function writeStr(s, chunk = 256){
+  const bytes = new TextEncoder().encode(s);
+  for (let i = 0; i < bytes.length; i += chunk){ await writer.write(bytes.slice(i, i + chunk)); if (bytes.length > chunk) await sleep(10); }
+}
+function waitFor(marker, timeout){
+  return new Promise((resolve, reject) => {
+    const t0 = performance.now();
+    (function poll(){
+      const i = rx.indexOf(marker);
+      if (i >= 0){ const before = rx.slice(0, i); rx = rx.slice(i + marker.length); return resolve(before); }
+      if (performance.now() - t0 > timeout) return reject(new Error("tiempo agotado esperando " + JSON.stringify(marker)));
+      setTimeout(poll, 15);
+    })();
+  });
+}
+function onText(s){
+  if (mode !== "stream" && $("raw").checked && s.trim()) log("« " + JSON.stringify(s).slice(1, -1));
+  rx += s;
+  if (mode === "stream"){
+    while (true){
+      const nl = rx.indexOf("\n"), eot = rx.indexOf("\x04");
+      if (eot >= 0 && (nl < 0 || eot < nl)){ const rest = rx.slice(0, eot); if (rest.trim()) handleLine(rest); rx = rx.slice(eot + 1); mode = "stderr"; break; }
+      if (nl < 0) break;
+      handleLine(rx.slice(0, nl)); rx = rx.slice(nl + 1);
+    }
+    if (rx.length > 4000) rx = rx.slice(-2000);
+  }
+  if (mode === "stderr"){
+    const eot = rx.indexOf("\x04");
+    if (eot >= 0){ const err = rx.slice(0, eot).replace(/\r/g, "").trim(); rx = rx.slice(eot + 1); mode = "idle"; onProgramEnd(err); }
+  }
+}
+async function readLoop(){
+  while (port && port.readable && !stopping){
+    reader = port.readable.getReader();
+    try { while (true){ const {value, done} = await reader.read(); if (done) break; onText(decoder.decode(value, {stream:true})); } }
+    catch (e){ if (!stopping) log("Error de lectura: " + e.message); }
+    finally { try { reader.releaseLock(); } catch {} }
+    if (!stopping) await sleep(50);
+  }
+}
+async function enterRaw(){
+  for (let attempt = 0; attempt < 5; attempt++){
+    await writeStr("\r\x03\x03");
+    await sleep(300 + attempt * 600);       // si la tarjeta se reinició al abrir el puerto, darle tiempo
+    rx = "";
+    await writeStr("\r\x01");
+    try { await waitFor("raw REPL; CTRL-B to exit\r\n>", 2000); log("Tarjeta en modo raw REPL"); return; }
+    catch { log("Reintentando entrar al REPL (" + (attempt + 1) + ")…"); }
+  }
+  throw new Error("La tarjeta no respondió. ¿Es una IdeaBoard con CircuitPython?");
+}
+
+async function connect(){
+  if (!("serial" in navigator)){ notice("Este navegador no tiene <b>Web Serial</b>. Usa Chrome o Edge en una computadora (Windows, macOS, Linux o ChromeOS).", true); return; }
+  stopDemo();
+  try {
+    port = await navigator.serial.requestPort({filters:[{usbVendorId:0x1A86},{usbVendorId:0x10C4}]});
+  } catch (e){ port = null; return; }  // canceló el selector
+  stopping = false; streaming = false;
+  try {
+    setStatus("Abriendo puerto…", "busy");
+    await port.open({baudRate:115200, bufferSize:16384});
+  } catch (e){
+    notice("No se pudo abrir el puerto: <b>" + e.message + "</b><br>Probablemente IdeaCode, Thonny u otra pestaña lo está usando. Ciérralos e intenta de nuevo.", true);
+    setStatus("Desconectado"); port = null; return;
+  }
+  writer = port.writable.getWriter();
+  readLoop();
+  try {
+    mode = "cmd";
+    setStatus("Preparando la tarjeta…", "busy");
+    await enterRaw();
+    clearData();
+    await writeStr(BOARD_SCRIPT.trim() + "\n\x04");
+    await waitFor("OK", 4000);
+    mode = "stream"; streaming = true; onText("");
+    setStatus("Iniciando sensores…", "busy");
+    $("btnConn").textContent = "Desconectar"; $("btnPause").disabled = false; $("btnCsv").disabled = false;
+    lastRx = performance.now();
+  } catch (e){
+    log("Error: " + e.message);
+    notice("<b>No se pudo iniciar la lectura.</b> " + e.message + " Desconecta y vuelve a conectar el cable USB, o presiona RESET en la tarjeta.", true);
+    await disconnect(true);
+  }
+}
+function onReady(){ setStatus("Conectado · leyendo", "ok"); notice(""); }
+function onProgramEnd(err){
+  streaming = false;
+  if (stopping) return;
+  if (!err){ log("El programa terminó."); return; }
+  log("Error en la tarjeta:\n" + err);
+  let msg = "<b>La tarjeta reportó un error.</b> Revisa el registro de diagnóstico.";
+  if (/No I2C device|ValueError/.test(err)) msg = "<b>No se detecta el IdeaSense.</b> Revisa el cable STEMMA QT/QWIIC entre la IdeaBoard y el IdeaSense y vuelve a conectar.";
+  else if (/ideasense|ImportError|No module/.test(err)) msg = "<b>Falta la librería <code>ideasense</code></b> (o una de sus dependencias) en <code>/lib</code> de la tarjeta. Cópiala desde el repositorio CRCibernetica/circuitpython-ideaboard con IdeaCode.";
+  else if (/MemoryError/.test(err)) msg = "<b>La tarjeta se quedó sin memoria.</b> Presiona RESET y vuelve a conectar.";
+  notice(msg, true); setStatus("Error", "err");
+}
+async function disconnect(silent){
+  if (!port) return;
+  stopping = true; streaming = false;
+  try {
+    await writeStr("\x03"); await sleep(250);     // detener el programa
+    await writeStr("\r\x02"); await sleep(150);   // salir del raw REPL
+    await writeStr("\x04"); await sleep(100);     // reinicio suave: vuelve a correr code.py
+  } catch {}
+  try { await reader?.cancel(); } catch {}
+  try { writer?.releaseLock(); } catch {}
+  try { await port.close(); } catch {}
+  port = null; writer = null; mode = "idle";
+  setStatus("Desconectado"); $("btnConn").textContent = "Conectar IdeaBoard"; $("btnPause").disabled = true;
+  if (!silent) log("Desconectado. La tarjeta volvió a su code.py.");
+}
+if ("serial" in navigator) navigator.serial.addEventListener("disconnect", e => {
+  if (port && e.target === port){ log("Se desconectó el cable USB."); stopping = true; port = null; writer = null; streaming = false; mode = "idle"; setStatus("Desconectado"); $("btnConn").textContent = "Conectar IdeaBoard"; $("btnPause").disabled = true; }
+});
+
+// --------------------------- demo ---------------------------
+let demoTimer = null, demoT0 = 0, demoLastEnv = -10;
+function startDemo(){
+  clearData(); demoT0 = performance.now(); demoLastEnv = -10;
+  setStatus("Demo (datos simulados)", "busy"); notice("Modo demo: datos simulados para probar la página sin tarjeta.");
+  $("btnDemo").textContent = "Detener demo"; $("btnPause").disabled = false; $("btnCsv").disabled = false;
+  demoTimer = setInterval(() => {
+    const t = (performance.now() - demoT0) / 1000, ms = Math.round(t * 1000);
+    if (t - demoLastEnv >= 1){ demoLastEnv = t;
+      handleLine(`E,${ms},${(24.5 + Math.sin(t / 40) * 1.2 + Math.random() * .05).toFixed(2)},${(62 + Math.sin(t / 55) * 4 + Math.random() * .2).toFixed(1)},${Math.round(400 + 300 * Math.max(0, Math.sin(t / 15)) + Math.random() * 10)}`); }
+    const tilt = Math.sin(t * 0.7), shake = (t % 8 > 6) ? (Math.random() - .5) * 8 : 0;
+    const ax = 9.81 * Math.sin(tilt * .6) + shake, az = 9.81 * Math.cos(tilt * .6) + shake * .5, ay = .3 * Math.sin(t * 2.1) + shake * .3;
+    const gx = .42 * Math.cos(t * .7) * .6, gy = .05 * Math.sin(t * 1.3), gz = (Math.random() - .5) * .02 + shake * .1;
+    const b = [(t % 10) < .3 ? 1 : 0, (t % 17) > 16.7 ? 1 : 0, 0].join("");
+    handleLine(`I,${ms},${ax.toFixed(3)},${ay.toFixed(3)},${az.toFixed(3)},${gx.toFixed(4)},${gy.toFixed(4)},${gz.toFixed(4)},${b}`);
+  }, 40);
+}
+function stopDemo(){ if (!demoTimer) return; clearInterval(demoTimer); demoTimer = null; $("btnDemo").textContent = "Demo"; setStatus("Desconectado"); notice(""); $("btnPause").disabled = true; }
+
+// --------------------------- CSV ---------------------------
+function downloadCsv(){
+  const rows = ["t_s,ax_ms2,ay_ms2,az_ms2,gx_rads,gy_rads,gz_rads,a_total_ms2,temp_C,humedad_pct,luz_cuentas,boton_A,boton_B,boton_C"];
+  for (const d of imu) rows.push([d.t.toFixed(3), d.ax, d.ay, d.az, d.gx, d.gy, d.gz, d.a.toFixed(3), d.T ?? "", d.H ?? "", d.L ?? "", ...d.b].join(","));
+  const blob = new Blob([rows.join("\n")], {type:"text/csv"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "ideasense_" + new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-") + ".csv"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  log(`CSV descargado: ${imu.length} filas.`);
+}
+
+// --------------------------- botones ---------------------------
+$("btnConn").onclick = () => port ? disconnect() : connect();
+$("btnDemo").onclick = () => { if (demoTimer) stopDemo(); else { if (port) return; startDemo(); } };
+$("btnPause").onclick = () => { paused = !paused; $("btnPause").textContent = paused ? "Continuar" : "Pausar"; };
+$("btnCsv").onclick = downloadCsv;
+$("btnClear").onclick = clearData;
+showButtons([0,0,0]);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
