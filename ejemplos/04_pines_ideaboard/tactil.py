@@ -1,5 +1,20 @@
-# Fiorella Pérez
-# Universidad Cenfotec
+"""
+Interfaz táctil
+===============
+
+Usa el pin IO4 como sensor capacitivo: al tocarlo se dibuja una X y el LED
+se pone azul; en reposo se muestra un punto central.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Tocar el pin IO4 (o un cable/papel aluminio conectado a él).
+Usa      : touchio.TouchIn, idea.matrix, ib.pixel
+Autoría  : Fiorella Pérez — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
 
 import board
 import touchio

@@ -1,3 +1,21 @@
+"""
+Gráfico de barras de temperatura
+================================
+
+Cada segundo agrega una barra con la temperatura (SHT30) a la matriz, como un
+gráfico de tiempo que recorre las 5 columnas. Rango por defecto: 20–30 °C.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: A = desplazar el gráfico hacia abajo, C = hacia arriba.
+Usa      : idea.temp, idea.pressed, idea.matrix
+Autoría  : Tomás de Camino Beck, Ph.D. — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 from ideasense import IdeaSense
 from ideaboard import IdeaBoard
 import time

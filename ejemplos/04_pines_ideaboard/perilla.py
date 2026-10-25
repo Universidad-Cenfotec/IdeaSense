@@ -1,5 +1,20 @@
-# Fiorella Pérez
-#Universidad Cenfotec
+"""
+Perilla (potenciómetro)
+=======================
+
+Lee un potenciómetro conectado a IO33 y enciende de 0 a 25 LEDs según su
+posición. El LED RGB pasa de azul a rojo.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Girar el potenciómetro. Conexión: extremos a 3.3 V y GND, cursor a IO33.
+Usa      : ib.AnalogIn, idea.matrix, ib.pixel
+Autoría  : Fiorella Pérez — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
 
 import board
 import time

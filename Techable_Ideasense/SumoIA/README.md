@@ -12,10 +12,15 @@ A partir de un modelo entrenado, el navegador reconoce una acción, envía el no
 SumoIA
 │
 ├── README.md
-├── 01_control_basico_ble.py
-├── 02_sumobot_pdi_estados.py
-└── 03_sumobot_ideasense.py
+├── codigos
+│   ├── 01_control_ble_basico.py
+│   ├── 02_control_pdi_maquina_estados.py
+│   └── 03_sumobot_ideasense.py
+└── modelo
+    └── SumoIA.tm          ← proyecto de Teachable Machine para reentrenar
 ```
+
+> Los ejemplos 02 y 03 usan [`lib/statemachine.py`](../../lib/statemachine.py): cópielo a la tarjeta como `/lib/statemachine.py`. La tarjeta se anuncia por Bluetooth con el nombre **Sumobot**.
 
 ### 🟢 01 - Control básico BLE
 Versión inicial del proyecto.
@@ -120,6 +125,20 @@ De esta manera es posible mejorar el desempeño del sistema sin necesidad de mod
 
 ---
 
+# ▶️ Cómo ejecutarlo
+
+1. Abrir [IdeaCode](https://ideacode.crcibernetica.com/) y conectar la IdeaBoard del Sumobot por USB.
+2. Copiar `lib/statemachine.py` a `/lib` (ejemplos 02 y 03).
+3. Pegar el código del ejemplo y guardarlo como `code.py`.
+4. Abrir la plataforma Teachable IdeaSense, cargar el modelo y conectar el dispositivo **Sumobot**.
+5. En el ejemplo 02, dejar el robot quieto mientras calibra el giroscopio.
+
+> Si una rueda gira al revés, cambie el signo del `throttle` de ese motor en las funciones `avanzar()`, `derecha()` e `izquierda()`.
+
+---
+
 # 🚀 Resultado
 
 Este ejemplo muestra cómo un modelo de Inteligencia Artificial puede controlar un robot físico mediante Bluetooth, evolucionando desde un control básico hasta una solución más completa con corrección automática de trayectoria y retroalimentación visual utilizando IdeaSense.
+
+**Autoría:** Fiorella Pérez — Universidad CENFOTEC.

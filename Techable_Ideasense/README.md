@@ -1,6 +1,8 @@
 # 🤖 Construye sistemas inteligentes: Teachable IdeaSense
 
-**Universidad Cenfotec.** Este proyecto presenta una plataforma web interactiva desarrollada para conectar de forma inalámbrica modelos de Inteligencia Artificial visual con hardware físico.
+**Universidad CENFOTEC** · Fiorella Pérez y Tomás de Camino Beck, Ph.D.
+
+ Este proyecto presenta una plataforma web interactiva desarrollada para conectar de forma inalámbrica modelos de Inteligencia Artificial visual con hardware físico.
 
 ---
 
@@ -128,6 +130,14 @@ El programa desarrollado en CircuitPython recibe mensajes mediante Bluetooth (BL
 *   `1` = LED encendido.
 *   `0` = LED apagado.
 
+**Antes de ejecutar:**
+
+1. Abrir [IdeaCode](https://ideacode.crcibernetica.com/) y conectar la IdeaBoard.
+2. Copiar [`lib/statemachine.py`](../lib/statemachine.py) a la tarjeta como `/lib/statemachine.py`.
+3. Pegar el código del ejemplo y guardarlo como `code.py`. La tarjeta se anuncia por Bluetooth con el nombre **IdeaSense**.
+
+> Si Chrome no encuentra el dispositivo, verifique que el `boot.py` de la tarjeta contenga `supervisor.runtime.ble_workflow = False` (así viene de fábrica en la IdeaBoard) y que ningún otro programa esté conectado a ella.
+
 ---
 
 ## 🔌 3. Conectar Todo
@@ -155,22 +165,28 @@ El programa desarrollado en CircuitPython recibe mensajes mediante Bluetooth (BL
 ## 📂 Contenido del Proyecto
 
 ```text
-Proyecto
+Techable_Ideasense
 │
 ├── README.md
-│
 ├── codigos
-│   ├── index.html
-│   ├── Ejemplo01
-│   ├── Ejemplo02
-│   ├── Ejemplo03
-│   └── statemachine.py
-│
-└── Modelos
-    ├── Ejemplo01
-    ├── Ejemplo02
-    └── Ejemplo03
+│   ├── index.html        ← versión local de la plataforma Teachable IdeaSense
+│   ├── Ejemplo01.py      ← pulgares: Feliz / Triste / Nada
+│   ├── Ejemplo02.py      ← números: Uno / Dos / Tres / Nulo
+│   └── Ejemplo03.py      ← detector de objeto: Carrito / Nulo
+├── modelos
+│   └── modelos.md        ← enlaces a los modelos de Teachable Machine
+└── SumoIA                ← Sumobot controlado por IA (ver su README)
 ```
+
+| Ejemplo | Código | Modelo de Teachable Machine | Clases |
+| :--- | :--- | :--- | :--- |
+| 01 · Pulgares | [`Ejemplo01.py`](codigos/Ejemplo01.py) | [8PFBVe19l](https://teachablemachine.withgoogle.com/models/8PFBVe19l/) | `Feliz`, `Triste`, `Nada` |
+| 02 · Números | [`Ejemplo02.py`](codigos/Ejemplo02.py) | [DxmCUv-np](https://teachablemachine.withgoogle.com/models/DxmCUv-np/) | `Uno`, `Dos`, `Tres`, `Nulo` |
+| 03 · Objeto | [`Ejemplo03.py`](codigos/Ejemplo03.py) | [iIaAJedxa](https://teachablemachine.withgoogle.com/models/iIaAJedxa/) | `Carrito`, `Nulo` |
+
+> Los tres programas usan la máquina de estados [`lib/statemachine.py`](../lib/statemachine.py). Cópiela a la tarjeta como `/lib/statemachine.py` antes de ejecutarlos.
+
+> Si el modelo de ejemplo no reconoce bien sus objetos, entrene uno propio con las **mismas clases** y pegue su URL en la plataforma.
 
 ---
 

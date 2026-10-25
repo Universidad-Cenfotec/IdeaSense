@@ -1,5 +1,26 @@
-
 # Perceptrón Multicapa para CircuitPython con ulab
+
+**Autoría:** Tomás de Camino Beck, Ph.D. — Universidad CENFOTEC
+
+## Archivos
+
+| Archivo | Para qué sirve |
+| :--- | :--- |
+| [`mlp.py`](mlp.py) | Librería `FastMLP`. Copiarla a la tarjeta como `/lib/mlp.py`. |
+| [`xor_training.py`](xor_training.py) | Entrena la red con la función XOR en la tarjeta y guarda los pesos en `/xor.nn`. |
+| [`xor_load.py`](xor_load.py) | Carga `/xor.nn` y muestra las predicciones, sin volver a entrenar. |
+| [`Perceptron_Multicapa_4clases.ipynb`](Perceptron_Multicapa_4clases.ipynb) | Notebook de Google Colab: entrena un MLP `[18, 12, 4]` para 4 gestos del acelerómetro con NumPy y exporta los pesos en un formato que `FastMLP.load()` puede leer en la tarjeta. |
+
+## Cómo ejecutar el ejemplo XOR
+
+1. Abrir [IdeaCode](https://ideacode.crcibernetica.com/) y conectar la IdeaBoard.
+2. Guardar `mlp.py` en la tarjeta como `/lib/mlp.py`.
+3. Ejecutar `xor_training.py`: imprime las épocas y al final las predicciones (valores cercanos a 0, 1, 1, 0).
+4. Ejecutar `xor_load.py` para comprobar que la red guardada se recupera.
+
+> ℹ️ `save()` escribe un archivo en la tarjeta. Si aparece `OSError: [Errno 30] Read-only filesystem`, la memoria no está habilitada para escritura desde el programa; consulte la documentación de CircuitPython sobre `storage.remount()` en `boot.py`. También se puede entrenar en el notebook de Colab y copiar el archivo de pesos a la tarjeta con IdeaCode.
+
+---
 
 Este proyecto implementa un perceptrón multicapa sencillo para ejecutarse en una placa ESP32 con CircuitPython. Está pensado para proyectos educativos donde se desea comprender cómo funciona una red neuronal desde sus componentes básicos, pero aprovechando `ulab` para acelerar algunas operaciones numéricas.
 

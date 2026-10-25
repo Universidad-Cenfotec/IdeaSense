@@ -1,3 +1,21 @@
+"""
+Mini Tetris 5x5
+===============
+
+Versión simplificada de Tetris en la matriz de 5x5. Las piezas caen solas;
+las filas completas se eliminan y el juego se reinicia al llenarse el tablero.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: A = mover a la izquierda, B = mover a la derecha, C = rotar.
+Usa      : idea.pressed, idea.matrix
+Autoría  : Tomás de Camino Beck, Ph.D. — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 from time import sleep
 from ideasense import IdeaSense
 
@@ -159,7 +177,7 @@ def reiniciar():
 # LOOP
 # =========================
 contador = 0
-velocidad = 8
+velocidad = 10   # ciclos de 0.05 s entre cada caída (= 0.5 s)
 
 while True:
     dibujar()
@@ -192,4 +210,7 @@ while True:
         else:
             fijar_pieza()
 
-    time.sleep(0.5)
+    # (corregido: antes decía time.sleep, pero solo se importa sleep,
+    #  y el programa se detenía con NameError; además 0.5 s hacía que se
+    #  perdieran pulsaciones de botones)
+    sleep(0.05)

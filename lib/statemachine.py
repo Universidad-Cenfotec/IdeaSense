@@ -1,10 +1,30 @@
-# ----------------------------------------
-# Universidad Cenfotec
-# Ph. Tomás de Camino Beck
-# Fiorella Perez
-# Aylin Salas
-# Gabriela Urbina Hernández
-# ----------------------------------------
+"""
+statemachine — máquina de estados mínima para CircuitPython
+===========================================================
+
+Cada estado es una función sin argumentos que ejecuta su comportamiento y
+devuelve el nombre del próximo estado. step() ejecuta el estado actual.
+
+Uso:
+    from statemachine import StateMachine
+
+    def rojo():
+        ...
+        return "VERDE"
+
+    sm = StateMachine("ROJO")
+    sm.add_state("ROJO", rojo)
+    sm.add_state("VERDE", verde)
+    while True:
+        sm.step()
+        time.sleep(0.05)
+
+Instalación: copiar este archivo a /lib/statemachine.py en la IdeaBoard
+(en minúscula: los programas lo importan como `from statemachine import ...`).
+
+Autoría: Tomás de Camino Beck, Ph.D., Fiorella Pérez, Aylin Salas y
+Gabriela Urbina Hernández — Universidad CENFOTEC
+"""
 
 class StateMachine:
     def __init__(self, initial_state):

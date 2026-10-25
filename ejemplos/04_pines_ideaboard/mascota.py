@@ -1,5 +1,19 @@
-# Fiorella Pérez
-# Universidad Cenfotec
+"""
+Mascota virtual táctil
+======================
+
+Una carita duerme en la matriz y despierta (sonríe) cuando se toca el pin IO4.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Tocar el pin IO4.
+Usa      : touchio.TouchIn, idea.matrix, ib.pixel
+Autoría  : Fiorella Pérez — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
 
 import board
 import touchio

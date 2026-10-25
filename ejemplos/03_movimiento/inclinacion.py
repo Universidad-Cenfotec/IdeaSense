@@ -1,3 +1,22 @@
+"""
+Indicador de inclinación (nivel)
+================================
+
+Calibra la posición inicial y luego dibuja una flecha desde el centro que
+indica hacia dónde hay que inclinar la tarjeta para volver a nivelarla.
+Si está nivelada, solo se enciende el punto central.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Dejar la tarjeta quieta al iniciar (calibración de 1 s) y luego inclinarla.
+Usa      : idea.accel, idea.matrix
+Autoría  : Tomás de Camino Beck, Ph.D. — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 import board
 from ideaboard import IdeaBoard
 from time import sleep

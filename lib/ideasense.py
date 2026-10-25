@@ -1,3 +1,15 @@
+# IdeaSense Library
+#
+# CircuitPython helper for the CRCibernetica IdeaSense Explorer: 5x5 LED matrix
+# with three buttons (HT16K33 @0x70), SHT30 temperature/humidity (@0x44),
+# LTR303 light sensor (@0x29) and LSM6DS3TR-C accelerometer/gyro (@0x6A).
+#
+# Copia de referencia de la librería oficial de CRCibernetica (licencia MIT):
+#   https://github.com/CRCibernetica/circuitpython-ideaboard/blob/master/lib/ideasense.py
+# La IdeaBoard ya la trae instalada en /lib. Si se borró, copiar este archivo a
+# /lib/ideasense.py junto con las dependencias indicadas en lib/README.md.
+# Ante diferencias, la versión oficial es la que manda.
+
 import time
 import board
 import adafruit_sht31d
