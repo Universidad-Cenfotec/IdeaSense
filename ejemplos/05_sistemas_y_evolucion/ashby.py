@@ -1,3 +1,23 @@
+"""
+Máquina de Ashby (homeostato)
+=============================
+
+Máquina de estados finitos inspirada en W. Ross Ashby: una tabla de 52 estados
+define qué "lámparas" (bloques 2x2 izquierdo y derecho) se encienden según el
+estado interno z y las entradas A y C. La columna central muestra z mod 5.
+Sirve para explorar cibernética: ¿se puede descubrir la regla observando?
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: A y C alternan cada una de las dos entradas y avanzan el estado.
+Usa      : idea.events, idea.matrix, ib.pixel
+Autoría  : Tomás de Camino Beck, Ph.D. — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 import time
 from ideasense import IdeaSense
 from ideaboard import IdeaBoard
@@ -114,3 +134,6 @@ while True:
 
         # Debug
         print("z:", z, "inp:", inp, "out:", l1, l2)
+
+    # Pausa corta para no saturar el procesador
+    time.sleep(0.005)

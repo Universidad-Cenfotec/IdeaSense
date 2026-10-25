@@ -1,3 +1,21 @@
+"""
+Temperatura en texto desplazable
+================================
+
+Muestra la temperatura (por ejemplo "24.5C") desplazándose por la matriz con
+una fuente 5x5 definida en el mismo archivo.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Ninguno.
+Usa      : idea.temp, idea.matrix
+Autoría  : Tomás de Camino Beck, Ph.D. — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 from ideasense import IdeaSense
 import time
 

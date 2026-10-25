@@ -1,3 +1,22 @@
+"""
+Algoritmo genético con luz
+==========================
+
+Una población de 20 "individuos" (patrones 5x5) evoluciona por selección,
+cruce y mutación. La aptitud premia tener más LEDs encendidos cuando hay poca
+luz y menos cuando hay mucha. Se muestra el mejor individuo de cada generación.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Cubrir o iluminar el sensor de luz y observar cómo se adapta la población.
+Usa      : idea.light, idea.matrix
+Autoría  : Tomás de Camino Beck, Ph.D. — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 import time
 import random
 from ideasense import IdeaSense
@@ -35,7 +54,7 @@ def fitness(individuo, luz):
     leds_encendidos = sum(individuo)
 
     # Normalizamos luz (ajustar según entorno)
-    # idea.light viene del sensor :contentReference[oaicite:2]{index=2}
+    # idea.light viene del sensor de luz LTR-303 (cuentas, no lux)
     luz_norm = min(luz / 1000, 1.0)
 
     # Queremos:

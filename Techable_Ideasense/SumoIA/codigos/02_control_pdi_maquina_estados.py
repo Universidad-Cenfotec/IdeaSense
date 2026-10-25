@@ -1,3 +1,22 @@
+"""
+SumoIA 02 — máquina de estados + control PDI
+============================================
+
+Igual que el 01 pero con una máquina de estados (CALIBRANDO, DESCONECTADO,
+STOP, AVANZAR, DERECHA, IZQUIERDA) y un controlador PDI que usa el giroscopio
+LSM6DS3TR-C para corregir la trayectoria al avanzar. Requiere statemachine.py.
+
+Hardware : IdeaBoard + Sumobot
+Controles: Dejar el robot quieto durante la calibración; luego enviar comandos por BLE.
+Usa      : adafruit_ble, adafruit_lsm6ds, statemachine, motores
+Autoría  : Fiorella Pérez — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 import time
 import board
 
@@ -526,6 +545,11 @@ conectado=False
 
 
 while True:
+
+    # Volver a anunciarse por BLE después de una desconexión
+    # (sin esto había que reiniciar la tarjeta para reconectar)
+    if not ble.connected and not ble.advertising:
+        ble.start_advertising(advertisement)
 
 
     # ------------------------

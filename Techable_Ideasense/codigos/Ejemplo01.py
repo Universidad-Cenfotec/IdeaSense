@@ -1,3 +1,22 @@
+"""
+Teachable IdeaSense — Ejemplo 01: pulgares
+==========================================
+
+Recibe por BLE (UART Nordic) la clase detectada por un modelo de Teachable
+Machine en el navegador (Feliz, Triste, Nada) y muestra una carita en la
+matriz mediante una máquina de estados. Requiere statemachine.py en /lib.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Conectarse desde la plataforma Teachable IdeaSense (dispositivo "IdeaSense").
+Usa      : adafruit_ble, statemachine, idea.matrix
+Autoría  : Fiorella Pérez — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 import time
 
 from adafruit_ble import BLERadio
@@ -161,6 +180,11 @@ conectado = False
 # =====================================================
 
 while True:
+
+    # Volver a anunciarse por BLE después de una desconexión
+    # (sin esto había que reiniciar la tarjeta para reconectar)
+    if not ble.connected and not ble.advertising:
+        ble.start_advertising(advertisement)
 
     # Detectar conexión
     if ble.connected and not conectado:

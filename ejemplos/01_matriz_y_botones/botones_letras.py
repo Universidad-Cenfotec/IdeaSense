@@ -1,5 +1,20 @@
-# Fiorella Pérez
-# Universidad Cenfotec
+"""
+Botones con letras
+==================
+
+Muestra la letra A, B o C en la matriz 5x5 mientras se mantiene presionado el
+botón correspondiente, y cambia el color del LED RGB de la IdeaBoard.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Mantener presionado A (verde), B (azul) o C (rojo).
+Usa      : idea.held, idea.matrix, ib.pixel
+Autoría  : Fiorella Pérez — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
 
 import time
 from ideaboard import IdeaBoard

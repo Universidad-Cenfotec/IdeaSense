@@ -1,5 +1,20 @@
-# Fiorella Pérez
-# Universidad Cenfotec
+"""
+Medidor de luz
+==============
+
+Lee el sensor de luz ambiental (LTR-303) y muestra el nivel en la matriz:
+nivel bajo, medio o alto (> 800, matriz completa y LED amarillo).
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Tapar o iluminar el sensor de luz.
+Usa      : idea.light, idea.matrix, ib.pixel
+Autoría  : Fiorella Pérez — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
 
 import board
 from ideaboard import IdeaBoard

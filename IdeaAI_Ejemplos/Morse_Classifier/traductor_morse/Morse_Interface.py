@@ -1,3 +1,22 @@
+"""
+Traductor Morse con IA
+======================
+
+Interfaz completa: clasifica gestos como punto o raya con el modelo de IdeaAI,
+arma letras en código Morse, las muestra en la matriz y guarda palabras en
+registro_morse.csv. Ver el README de la carpeta Morse_Classifier.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Gestos con la tarjeta; botones según las instrucciones de la consola (A+B guarda).
+Usa      : idea.accel, idea.gyro, idea.events, idea.matrix, ib.pixel
+Autoría  : Fiorella Pérez — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 from ideasense import IdeaSense
 from ideaboard import IdeaBoard
 import time

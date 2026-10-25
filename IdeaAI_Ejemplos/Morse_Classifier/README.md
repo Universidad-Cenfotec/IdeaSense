@@ -36,3 +36,30 @@ El corazón de la clasificación no se programó a mano con reglas fijas (`if/el
 * **Freno Antirrebote por Software:** Implementación de lógica por banderas (`ya_guardado_combo`) y delays estratégicos para mitigar la alta velocidad del bucle principal y evitar registros duplicados o lecturas corruptas.
 
 ---
+
+## 📂 Archivos
+
+| Archivo | Para qué sirve |
+| :--- | :--- |
+| [`traductor_morse/modelo_IA.py`](traductor_morse/modelo_IA.py) | Modelo exportado desde IdeaAI. Sirve para probar solo el clasificador (punto / raya) antes de usar la interfaz completa. |
+| [`traductor_morse/Morse_Interface.py`](traductor_morse/Morse_Interface.py) | Traductor completo: captura de gestos, armado de letras, matriz LED y registro en CSV. |
+
+## 🎮 Controles
+
+| Botón | Acción |
+| :--- | :--- |
+| **A** | Captura un gesto: esperar el LED morado (quieto), mover con el LED amarillo. |
+| **B** | Traduce la secuencia actual a una letra y la agrega a la palabra. |
+| **C** (toque) | Borra la última letra. |
+| **C** (mantener) | Borra toda la palabra. |
+| **A + B** (mantener) | Muestra la palabra en la matriz y la guarda en `registro_morse.csv`. |
+
+## ▶️ Cómo ejecutarlo
+
+1. Abrir [IdeaCode](https://ideacode.crcibernetica.com/) en Chrome o Edge y conectar la IdeaBoard con la IdeaSense.
+2. Pegar el contenido de `Morse_Interface.py` y guardarlo como `code.py`.
+3. Abrir la consola: el programa imprime la guía de controles y el diccionario Morse.
+
+> ℹ️ Para guardar `registro_morse.csv` el programa necesita poder escribir en la memoria de la tarjeta. Si aparece `OSError: [Errno 30] Read-only filesystem`, el resto del traductor sigue funcionando; consulte la documentación de CircuitPython sobre `storage.remount()` en `boot.py`.
+
+**Autoría:** Fiorella Pérez — Universidad CENFOTEC.

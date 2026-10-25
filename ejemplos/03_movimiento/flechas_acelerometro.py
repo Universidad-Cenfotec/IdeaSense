@@ -1,3 +1,22 @@
+"""
+Flechas con el acelerómetro
+===========================
+
+Dibuja una flecha hacia el lado al que se inclina la tarjeta (ejes X e Y) y un
+cuadro o una X cuando la tarjeta está boca arriba o boca abajo (eje Z).
+Código generado originalmente con IdeaScratch.
+
+Hardware : IdeaBoard + IdeaSense Explorer
+Controles: Inclinar la tarjeta. Umbral th = 1 m/s².
+Usa      : idea.accel, idea.matrix
+Autoría  : Tomás de Camino Beck, Ph.D. — Universidad CENFOTEC
+Repositorio: https://github.com/Universidad-Cenfotec/IdeaSense
+
+Cómo ejecutarlo: abrir https://ideacode.crcibernetica.com en Chrome o Edge,
+conectar la IdeaBoard por USB, pegar este código y ejecutarlo (Ctrl+R) o
+guardarlo como code.py en la tarjeta.
+"""
+
 import board
 from ideaboard import IdeaBoard
 from time import sleep
