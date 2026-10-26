@@ -29,7 +29,7 @@ Desarrollado en la **Universidad CENFOTEC** por el **Dr. Tomás de Camino Beck**
 
 ## ¿Qué es IdeaSense?
 
-La **[IdeaSense Explorer](https://www.crcibernetica.com/crcibernetica-ideasense-explorer/)** es una tarjeta educativa de expansión diseñada por CRCibernética (Costa Rica) que se conecta a la **[IdeaBoard](https://www.crcibernetica.com/crcibernetica-ideaboard)** (ESP32 con Wi‑Fi y Bluetooth LE) por el conector I²C STEMMA QT / QWIIC. La IdeaBoard ejecuta el programa; la IdeaSense aporta pantalla, botones y sensores.
+La **[IdeaSense Explorer](https://www.crcibernetica.com/crcibernetica-ideasense-explorer/)** es una tarjeta educativa de expansión diseñada por CRCibernética (Costa Rica) y Universidad CEFNFOTEC que se conecta a la **[IdeaBoard](https://www.crcibernetica.com/crcibernetica-ideaboard)** (ESP32 con Wi‑Fi y Bluetooth LE) por el conector I²C STEMMA QT / QWIIC. La IdeaBoard ejecuta el programa; la IdeaSense aporta pantalla, botones y sensores.
 
 | Componente | Chip | Dirección I²C | En Python |
 | :--- | :--- | :---: | :--- |
