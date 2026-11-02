@@ -29,14 +29,14 @@ Desarrollado en la **Universidad CENFOTEC** por el **Dr. Tomás de Camino Beck**
 
 ## ¿Qué es IdeaSense?
 
-La **[IdeaSense Explorer](https://www.crcibernetica.com/crcibernetica-ideasense-explorer/)** es una tarjeta educativa de expansión diseñada por CRCibernética (Costa Rica) y Universidad CEFNFOTEC que se conecta a la **[IdeaBoard](https://www.crcibernetica.com/crcibernetica-ideaboard)** (ESP32 con Wi‑Fi y Bluetooth LE) por el conector I²C STEMMA QT / QWIIC. La IdeaBoard ejecuta el programa; la IdeaSense aporta pantalla, botones y sensores.
+La **[IdeaSense Explorer](https://www.crcibernetica.com/crcibernetica-ideasense-explorer/)** es una tarjeta educativa de expansión diseñada por CRCibernética (Costa Rica) y Universidad CENFOTEC que se conecta a la **[IdeaBoard](https://www.crcibernetica.com/crcibernetica-ideaboard)** (ESP32 con Wi‑Fi y Bluetooth LE) por el conector I²C STEMMA QT / QWIIC. La IdeaBoard ejecuta el programa; la IdeaSense aporta pantalla, botones y sensores.
 
 | Componente | Chip | Dirección I²C | En Python |
 | :--- | :--- | :---: | :--- |
 | Matriz LED 5×5 y botones A, B, C | HT16K33 | `0x70` | `idea.matrix`, `idea.events`, `idea.pressed`, `idea.held` |
 | Temperatura y humedad | SHT30 | `0x44` | `idea.temp` (°C), `idea.humid` (%) |
 | Luz ambiental (visible + IR) | LTR‑303 | `0x29` | `idea.light` (cuentas) |
-| Acelerómetro y giroscopio (6 ejes) | LSM6DS3TR‑C | `0x6A` | `idea.accel` (m/s²), `idea.gyro` (rad/s) |
+| Acelerómetro y giroscopio (6 ejes) | LSM6DS3TR‑C | `0x6A` | `idea.accel` ($m/s^2$), `idea.gyro` ($rad/s$) |
 
 Además tiene **dos conectores QWIIC** para agregar más sensores sin soldar. De la IdeaBoard se usan con frecuencia el LED RGB (`ib.pixel`), los motores (`ib.motor_1`, `ib.motor_2`), los pines analógicos y táctiles, y el Bluetooth.
 
@@ -50,6 +50,7 @@ Todas funcionan en el navegador (Chrome o Edge) y no requieren instalar nada.
 | :--- | :--- | :--- |
 | 🧩 **IdeaScratch** | Programación por bloques, estilo Scratch. Ideal para empezar. | <https://ideascratch.crcibernetica.com/> |
 | 🐍 **IdeaCode** | Editor de CircuitPython (inspirado en Thonny) con consola. Es la forma recomendada de usar los ejemplos de este repositorio. | <https://ideacode.crcibernetica.com/> |
+| 🎮 **IdeaSense Explorer AI** | Telemetría BLE en tiempo real (25 Hz), Gamepad físico para juegos 2D, clasificador de gestos $k$-NN, matriz LED y registro de datos científicos. | [Abrir herramienta](https://universidad-cenfotec.github.io/IdeaSense/ideasense-explorer-ai/) |
 | 🧠 **IdeaAI** | Grabar gestos con el IMU, entrenar un clasificador y exportarlo como `code.py`. | <https://ideaai.crcibernetica.com/> |
 | 🔬 **IdeaSense Ciencias** | Laboratorio de sensores en vivo con gráficos y descarga CSV. | <https://universidad-cenfotec.github.io/IdeaSense/ideaciencia/> |
 | 📷 **Teachable IdeaSense** | Modelo de imágenes de Teachable Machine en el navegador que envía la clase detectada por Bluetooth. | <https://universidad-cenfotec.github.io/Libro-de-la-IA/teachable-ideasense/index.html> |
@@ -127,6 +128,11 @@ IdeaSense/
 │   ├── 03_movimiento/
 │   ├── 04_pines_ideaboard/
 │   └── 05_sistemas_y_evolucion/
+├── ideasense-explorer-ai/        ← plataforma SPA web y firmware BLE (telemetría 25 Hz, Gamepad, AI Lab)
+│   ├── README.md
+│   └── codigos/
+│       ├── index.html
+│       └── code.py
 ├── IdeaAI_Ejemplos/              ← modelos de gestos exportados desde IdeaAI
 ├── MultiLayerPerceptron/         ← red neuronal que se entrena en la propia tarjeta
 ├── Techable_Ideasense/           ← visión artificial (Teachable Machine) + BLE
@@ -187,6 +193,7 @@ Cada archivo empieza con un encabezado que explica qué hace, qué controles usa
 
 | Carpeta | Qué contiene |
 | :--- | :--- |
+| [`ideasense-explorer-ai/`](ideasense-explorer-ai/) | Plataforma Web (SPA) y firmware CircuitPython con telemetría BLE (25 Hz), Gamepad para simulador de carreras 2D, clasificador de gestos $k$-NN, diseñador de matriz LED y exportación de datos en CSV. |
 | [`IdeaAI_Ejemplos/`](IdeaAI_Ejemplos/) | Clasificadores de gestos entrenados con IdeaAI: **MotionSense** (calma / movimiento) y el **Traductor Morse** con IA. |
 | [`MultiLayerPerceptron/`](MultiLayerPerceptron/) | Perceptrón multicapa (`FastMLP`) que se entrena **dentro** del ESP32 con `ulab`, ejemplo XOR y notebook de Colab para 4 gestos. |
 | [`Techable_Ideasense/`](Techable_Ideasense/) | Modelos de imágenes de Teachable Machine que controlan la matriz por Bluetooth (pulgares, números, detector de objeto). |
