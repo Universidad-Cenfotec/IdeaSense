@@ -8,7 +8,7 @@ Este proyecto ofrece una solución integral web y firmware inalámbrico para tra
 
 ## 💡 La Idea Central de la Plataforma Web
 
-La plataforma **IdeaSense Explorer AI** funciona como un **centro de control todo en uno**, diseñado para capturar datos de sensores físicamente a 25 Hz (40 ms) e interactuar bidireccionalmente mediante **Web Bluetooth LE (Nordic UART Service)**.
+La plataforma **IdeaSense Explorer AI** funciona como un **centro de control todo en uno**, accesible directamente desde el navegador en [**IdeaSense Explorer AI Web**](https://universidad-cenfotec.github.io/IdeaSense/ideasense-explorer-ai/codigos/index.html), diseñada para capturar datos de sensores físicamente a 25 Hz (40 ms) e interactuar bidireccionalmente mediante **Web Bluetooth LE (Nordic UART Service)**.
 
 En lugar de requerir múltiples programas independientes, la plataforma integra en un solo panel web:
 
@@ -136,9 +136,9 @@ def send_telemetry():
 
 ## 🔌 3. Conectar Todo
 
-1. **Cargar el Firmware:** Copie `codigos/code.py` en la unidad de almacenamiento de la IdeaBoard utilizando [IdeaCode](https://ideacode.crcibernetica.com/) o su editor preferido.
+1. **Cargar el Firmware:** Copie [`codigos/code.py`](codigos/code.py) en la unidad de almacenamiento de la IdeaBoard utilizando [IdeaCode](https://ideacode.crcibernetica.com/) o su editor preferido.
 2. **Encender la Placa:** Alimente la IdeaBoard mediante el cable USB.
-3. **Abrir la Aplicación Web:** Abra `codigos/index.html` en Chrome o Edge (o mediante GitHub Pages).
+3. **Abrir la Plataforma Web:** Ingresa a [**IdeaSense Explorer AI**](https://universidad-cenfotec.github.io/IdeaSense/ideasense-explorer-ai/codigos/index.html) desde Chrome o Edge.
 4. **Conectar Bluetooth:** Presione el botón **"Conectar IdeaBoard"** en la esquina superior derecha y seleccione el dispositivo `IdeaBoard-Explorer-AI` o `IdeaBoard`.
 5. **Comenzar la Interacción:** Inicie la carrera en la pestaña *Juegos Web*, visualice las curvas en *Dashboard* o entrene un gesto en *AI Lab*.
 
@@ -164,6 +164,12 @@ ideasense-explorer-ai
     ├── index.html       ← Aplicación Web SPA (Dashboard, Gamepad 2D, AI Lab, Experimentos)
     └── code.py          ← Firmware en CircuitPython 9.x para IdeaBoard
 ```
+
+| Componente | Archivo / Enlace | Descripción |
+| :--- | :--- | :--- |
+| 🌐 **Aplicación Web** | [Abrir Plataforma Web](https://universidad-cenfotec.github.io/IdeaSense/ideasense-explorer-ai/codigos/index.html) | Dashboard, Gamepad Arcade 2D, AI Lab y Experimentos |
+| 💻 **Código Fuente Web** | [`codigos/index.html`](codigos/index.html) | Código HTML5, JavaScript y Chart.js |
+| 🐍 **Firmware Placa** | [`codigos/code.py`](codigos/code.py) | Programa CircuitPython 9.x con transmisión BLE |
 
 ---
 
