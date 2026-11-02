@@ -37,12 +37,12 @@ footer a{color:var(--accent)}
 <main>
   <header>
     <h1>Herramientas IdeaBoard + IdeaSense</h1>
-    <p>Aplicaciones web para trabajar con la IdeaBoard y el IdeaSense Explorer desde el navegador: medir y experimentar, programar con bloques y entrenar modelos de inteligencia artificial. Conecta la tarjeta por USB y abre la herramienta que necesites.</p>
+    <p>Aplicaciones web para trabajar con la IdeaBoard y el IdeaSense Explorer desde el navegador: medir y experimentar, programar con bloques y entrenar modelos de inteligencia artificial. Conecta la tarjeta por USB o Bluetooth y abre la herramienta que necesites.</p>
   </header>
 
   <section class="grid" id="tools"></section>
 
-  <div class="req"><b>Requisitos:</b> Chrome o Edge en una computadora (Windows, macOS, Linux o ChromeOS) y un cable USB que transmita datos. Usa una sola herramienta a la vez: si una está conectada a la tarjeta, las demás no podrán abrir el puerto.</div>
+  <div class="req"><b>Requisitos:</b> Chrome o Edge en una computadora (Windows, macOS, Linux o ChromeOS) y un cable USB que transmita datos o soporte Web Bluetooth. Usa una sola herramienta a la vez: si una está conectada a la tarjeta, las demás no podrán abrir el puerto.</div>
 
   <footer>Universidad CENFOTEC · <a href="https://github.com/Universidad-Cenfotec/IdeaSense">Repositorio IdeaSense</a></footer>
 </main>
@@ -70,6 +70,19 @@ const HERRAMIENTAS = [
       "Descarga de los datos en CSV para analizarlos"
     ],
     tags: ["Ciencias", "Medición", "Sin instalar nada"]
+  },
+  {
+    nombre: "IdeaSense Explorer AI",
+    sub: "Telemetría BLE, Gamepad y AI Lab",
+    url: "../ideasense-explorer-ai/codigos/",
+    icon: "🎮", color: "#f3e8ff",
+    texto: "Monitorea todos los sensores por Bluetooth LE en tiempo real, controla el simulador de carrera 2D con los botones físicos de la tarjeta y entrena modelos de IA.",
+    puntos: [
+      "Telemetría en tiempo real vía Bluetooth LE (25 Hz)",
+      "Gamepad inalámbrico usando idea.held[0] e idea.held[1]",
+      "Matriz LED interactiva 5x5 y laboratorio de Clasificación IA"
+    ],
+    tags: ["Bluetooth", "Gamepad", "IA", "Telemetría"]
   },
   {
     nombre: "IdeaAI",
@@ -121,8 +134,7 @@ const HERRAMIENTAS = [
       "Ejemplos de código en la carpeta Techable_Ideasense"
     ],
     tags: ["Inteligencia artificial", "Robótica"]
-  },
-  // { nombre: "", sub: "", url: "", icon: "", color: "", texto: "", puntos: [], tags: [] },
+  }
 ];
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
