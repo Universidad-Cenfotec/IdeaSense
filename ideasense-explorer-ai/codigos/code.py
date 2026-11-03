@@ -1,10 +1,11 @@
 """
 ===============================================================================
 PROYECTO: IDEASENSE EXPLORER AI - GAME CONTROLLER FIRMWARE
-Firmware Completo para IdeaBoard (ESP32) - CircuitPython 9.x
+Firmware Completo para IdeaBoard (ESP32) - CircuitPython 10.x
 ===============================================================================
 - Muestreo y transmisión BLE a 25 Hz (40 ms).
 - Lectura de botones mediante la librería 'ideasense' (idea.held) o GPIO directo.
+- Lectura de acelerómetro y giroscopio mediante idea.accel e idea.gyro.
 - Envío continuo en JSON de telemetría y estado de botones ("ba", "bb").
 ===============================================================================
 """
@@ -215,13 +216,39 @@ def read_environment_sensors():
 
 
 def read_motion_sensors():
-    if i2c and 0x6a in hw_addresses:
+    """Lee acelerometro y giroscopio usando IdeaSense cuando esta disponible.
+
+    IdeaSense devuelve:
+      - accel: aceleracion X, Y, Z en g
+      - gyro: velocidad angular X, Y, Z en grados/segundo
+
+    Si la biblioteca no esta disponible, utiliza la lectura I2C alternativa.
+    Si ninguna lectura funciona, devuelve ceros para no presentar datos
+    simulados como si fueran mediciones reales.
+    """
+    if use_ideasense_lib and idea:
+        try:
+            ax, ay, az = idea.accel
+            gx, gy, gz = idea.gyro
+
+            return (
+                float(ax), float(ay), float(az),
+                float(gx), float(gy), float(gz)
+            )
+        except Exception as err:
+            print(f"[IMU WARN] No se pudo leer la IMU mediante IdeaSense: {err}")
+            return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+
+    if i2c and 0x6A in hw_addresses:
         try:
             buf = bytearray(12)
+
             while not i2c.try_lock():
                 pass
-            i2c.writeto_then_readfrom(0x6a, bytes([0x22]), buf)
-            i2c.unlock()
+            try:
+                i2c.writeto_then_readfrom(0x6A, bytes([0x22]), buf)
+            finally:
+                i2c.unlock()
 
             def to_signed(low, high):
                 val = (high << 8) | low
@@ -236,11 +263,10 @@ def read_motion_sensors():
             az = to_signed(buf[10], buf[11]) * 0.000061
 
             return ax, ay, az, gx, gy, gz
-        except Exception:
-            pass
+        except Exception as err:
+            print(f"[IMU WARN] Error leyendo la IMU por I2C: {err}")
 
-    t = time.monotonic()
-    return 0.02 * ((t * 2) % 1.0 - 0.5), -0.01, 0.98, 0.0, 0.0, 0.0
+    return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 
 
 def read_light_sensor():
