@@ -40,16 +40,28 @@
       color: var(--text-main);
       display: flex;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
 
+    /* Sidebar & Drawer */
     aside {
       width: var(--sidebar-width);
       background: #0b0f19;
       border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      z-index: 20;
+      z-index: 30;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 25;
     }
 
     .brand {
@@ -85,18 +97,35 @@
       border-left: 3px solid var(--accent-cyan);
     }
 
-    main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
     header {
-      height: var(--header-height);
-      background: rgba(11, 15, 25, 0.8);
+      min-height: var(--header-height);
+      background: rgba(11, 15, 25, 0.85);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border-color);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px;
+      padding: 0 20px;
+      gap: 12px;
+      z-index: 10;
     }
 
-    .status-group { display: flex; align-items: center; gap: 16px; }
+    .hamburger-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      font-size: 1.1rem;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .hamburger-btn:hover { background: var(--bg-card); }
+
+    .header-left { display: flex; align-items: center; gap: 12px; }
+
+    .status-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .badge {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 12px; border-radius: 20px; font-size: 0.78rem;
@@ -106,11 +135,14 @@
     .badge.connected .badge-dot { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
     .badge.demo .badge-dot { background: var(--accent-warning); box-shadow: 0 0 8px var(--accent-warning); }
 
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+
     .btn {
       background: var(--primary); color: #fff; border: none;
       padding: 8px 16px; border-radius: 6px; font-weight: 600;
       font-size: 0.85rem; cursor: pointer; display: inline-flex;
-      align-items: center; gap: 8px; transition: all 0.2s ease;
+      align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;
+      white-space: nowrap;
     }
     .btn:hover { background: var(--primary-hover); }
     .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
@@ -125,8 +157,8 @@
 
     .grid { display: grid; gap: 20px; }
     .grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
-    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 
     .card {
       background: var(--bg-card);
@@ -141,6 +173,7 @@
       font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
       letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 12px;
       display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px;
     }
 
     .sensor-val { font-size: 1.8rem; font-weight: 700; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
@@ -182,7 +215,8 @@
     .game-canvas-container {
       position: relative;
       width: 100%;
-      height: 400px;
+      min-height: 300px;
+      max-height: 420px;
       background: #020408;
       border-radius: 10px;
       border: 2px solid var(--border-color);
@@ -190,18 +224,22 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 10px;
     }
     canvas.game-surface {
       background: #0d111a;
       box-shadow: 0 0 20px rgba(0,0,0,0.8);
       border-radius: 6px;
+      max-width: 100%;
+      height: auto;
     }
     .game-controls-bar {
       display: flex;
-      gap: 15px;
+      gap: 12px;
       align-items: center;
       justify-content: space-between;
       margin-top: 15px;
+      flex-wrap: wrap;
     }
     .game-btn-indicator {
       display: inline-flex;
@@ -221,8 +259,46 @@
       box-shadow: 0 0 10px var(--accent-green);
     }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    .mobile-touch-controls {
+      display: none;
+      gap: 12px;
+      margin-top: 15px;
+      width: 100%;
+    }
+    .touch-btn {
+      flex: 1;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 10px;
+      background: var(--bg-card-hover);
+      border: 1px solid var(--accent-cyan);
+      color: var(--text-main);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .touch-btn:active, .touch-btn.active {
+      background: var(--accent-cyan);
+      color: #000;
+      box-shadow: 0 0 12px var(--accent-cyan);
+    }
+
+    /* Tabla responsiva con scroll horizontal */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 10px;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 320px; }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
     th { background: #0b0f19; color: var(--text-muted); font-weight: 600; }
 
     .console-box {
@@ -246,11 +322,87 @@
       cursor: pointer;
     }
     .checkbox-item input { accent-color: var(--primary); cursor: pointer; }
+
+    /* MEDIA QUERIES PARA ADAPTACIÓN MÓVIL */
+    @media (max-width: 860px) {
+      aside {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 270px;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 25px rgba(0,0,0,0.6);
+      }
+      aside.active {
+        transform: translateX(0);
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .hamburger-btn {
+        display: inline-flex;
+      }
+      header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px 14px;
+        gap: 10px;
+      }
+      .header-left {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .status-group {
+        justify-content: flex-end;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .header-actions .btn {
+        flex: 1;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+      }
+      .content-area {
+        padding: 14px;
+      }
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+      .sensor-val {
+        font-size: 1.5rem;
+      }
+      .mobile-touch-controls {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .badge {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+      }
+      .brand-title {
+        font-size: 0.95rem;
+      }
+      .card {
+        padding: 14px;
+      }
+      .btn {
+        padding: 8px 10px;
+        font-size: 0.78rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <aside>
+  <!-- Drawer Overlay para Móviles -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <aside id="mainSidebar">
     <div class="brand">
       <div class="brand-icon"><i class="fa-solid fa-microchip"></i></div>
       <div class="brand-title">IdeaSense <span>AI</span></div>
@@ -269,11 +421,14 @@
 
   <main>
     <header>
-      <div class="status-group">
-        <div class="badge" id="bleBadge"><span class="badge-dot"></span> <span id="bleStatusText">Desconectado</span></div>
-        <div class="badge" id="modeBadge"><span class="badge-dot"></span> <span id="modeStatusText">Modo Real</span></div>
+      <div class="header-left">
+        <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Abrir Menú"><i class="fa-solid fa-bars"></i></button>
+        <div class="status-group">
+          <div class="badge" id="bleBadge"><span class="badge-dot"></span> <span id="bleStatusText">Desconectado</span></div>
+          <div class="badge" id="modeBadge"><span class="badge-dot"></span> <span id="modeStatusText">Modo Real</span></div>
+        </div>
       </div>
-      <div style="display: flex; gap: 10px;">
+      <div class="header-actions">
         <button class="btn btn-outline" id="btnToggleDemo" onclick="toggleDemoMode()"><i class="fa-solid fa-flask-vial"></i> Modo DEMO</button>
         <button class="btn" id="btnConnect" onclick="connectBLE()"><i class="fa-brands fa-bluetooth-b"></i> Conectar IdeaBoard</button>
       </div>
@@ -309,17 +464,19 @@
           </div>
           <div class="card">
             <div class="card-title">Estado del Hardware & Gamepad</div>
-            <table>
-              <thead><tr><th>Componente</th><th>Interfaz</th><th>Estado / Valor</th></tr></thead>
-              <tbody>
-                <tr><td>IdeaBoard (ESP32)</td><td>BLE NUS</td><td style="color:var(--accent-green)">OK</td></tr>
-                <tr><td>IMU 6-Ejes</td><td>I2C (0x6a)</td><td style="color:var(--accent-green)">OK</td></tr>
-                <tr><td>Temp & Humedad</td><td>I2C (0x44)</td><td style="color:var(--accent-green)">OK</td></tr>
-                <tr><td>Sensor Luz LTR-303</td><td>I2C (0x29)</td><td style="color:var(--accent-green)">OK</td></tr>
-                <tr><td>Botón A (held[0])</td><td>IdeaSense Lib</td><td id="dashBtnA">Suelto</td></tr>
-                <tr><td>Botón B/C (held[1,2])</td><td>IdeaSense Lib</td><td id="dashBtnB">Suelto</td></tr>
-              </tbody>
-            </table>
+            <div class="table-responsive">
+              <table>
+                <thead><tr><th>Componente</th><th>Interfaz</th><th>Estado / Valor</th></tr></thead>
+                <tbody>
+                  <tr><td>IdeaBoard (ESP32)</td><td>BLE NUS</td><td style="color:var(--accent-green)">OK</td></tr>
+                  <tr><td>IMU 6-Ejes</td><td>I2C (0x6a)</td><td style="color:var(--accent-green)">OK</td></tr>
+                  <tr><td>Temp & Humedad</td><td>I2C (0x44)</td><td style="color:var(--accent-green)">OK</td></tr>
+                  <tr><td>Sensor Luz LTR-303</td><td>I2C (0x29)</td><td style="color:var(--accent-green)">OK</td></tr>
+                  <tr><td>Botón A (held[0])</td><td>IdeaSense Lib</td><td id="dashBtnA">Suelto</td></tr>
+                  <tr><td>Botón B/C (held[1,2])</td><td>IdeaSense Lib</td><td id="dashBtnB">Suelto</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -361,7 +518,7 @@
           <div class="card">
             <div class="card-title">Simulador de Carrera 2D Arcade</div>
             <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
-              Mantén presionado el <b>Botón A (held[0])</b> para esquivar hacia la Izquierda y el <b>Botón B/C (held[1]/held[2])</b> para ir a la Derecha.
+              Mantén presionado el <b>Botón A (held[0])</b> o el botón táctil para ir a la Izquierda y el <b>Botón B/C (held[1]/held[2])</b> para ir a la Derecha.
             </p>
             <button class="btn" onclick="initWebCarGame()"><i class="fa-solid fa-play"></i> Reiniciar Carrera</button>
           </div>
@@ -383,6 +540,11 @@
           </div>
           <div class="game-canvas-container">
             <canvas id="arcadeCanvas" class="game-surface" width="450" height="380"></canvas>
+          </div>
+          <!-- Controles Táctiles en Pantalla para Móviles -->
+          <div class="mobile-touch-controls">
+            <button class="touch-btn" id="btnTouchLeft"><i class="fa-solid fa-arrow-left"></i> Izquierda (A)</button>
+            <button class="touch-btn" id="btnTouchRight">Derecha (B/C) <i class="fa-solid fa-arrow-right"></i></button>
           </div>
         </div>
       </div>
@@ -414,7 +576,7 @@
               Muestras recolectadas: 0
             </div>
 
-            <div style="margin-top:15px; max-height: 180px; overflow-y: auto;">
+            <div class="table-responsive" style="margin-top:15px; max-height: 180px;">
               <table id="aiSamplesTable">
                 <thead><tr><th>#</th><th>Clase</th><th>Vector Base</th><th>Acción</th></tr></thead>
                 <tbody></tbody>
@@ -451,15 +613,17 @@
         <div class="grid grid-2">
           <div class="card">
             <div class="card-title">Modelos Guardados</div>
-            <table id="savedModelsTable">
-              <thead><tr><th>Nombre</th><th>Muestras</th><th>Fecha</th><th>Acciones</th></tr></thead>
-              <tbody></tbody>
-            </table>
+            <div class="table-responsive">
+              <table id="savedModelsTable">
+                <thead><tr><th>Nombre</th><th>Muestras</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
 
           <div class="card">
             <div class="card-title">Detección de Anomalías (Z-Score)</div>
-            <div style="display:flex; align-items:center; gap:20px;">
+            <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
               <div>Puntuación Anormal: <span id="aiAnomalyScore" class="sensor-val" style="font-size:1.4rem;">0.00</span></div>
               <div id="aiAnomalyStatus" class="badge" style="background:#1e293b;">Normal</div>
             </div>
@@ -498,10 +662,12 @@
 
         <div class="card">
           <div class="card-title">Registro de Experimentos Guardados</div>
-          <table id="experimentsTable">
-            <thead><tr><th>ID</th><th>Nombre</th><th>Sensores Medidos</th><th>Muestras</th><th>Fecha</th><th>Acciones</th></tr></thead>
-            <tbody></tbody>
-          </table>
+          <div class="table-responsive">
+            <table id="experimentsTable">
+              <thead><tr><th>ID</th><th>Nombre</th><th>Sensores Medidos</th><th>Muestras</th><th>Fecha</th><th>Acciones</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
 
         <div class="card" id="expViewerCard" style="margin-top:20px; display:none;">
@@ -515,7 +681,7 @@
             <canvas id="expResultChart" height="130"></canvas>
           </div>
 
-          <div style="max-height: 220px; overflow-y: auto;">
+          <div class="table-responsive" style="max-height: 220px;">
             <table id="expViewerTable">
               <thead><tr id="expViewerTableHead"></tr></thead>
               <tbody></tbody>
@@ -557,10 +723,12 @@
             <span>Historial de Eventos</span>
             <button class="btn btn-outline" style="padding:4px 8px;" onclick="exportHistoryCSV()"><i class="fa-solid fa-download"></i> Exportar CSV</button>
           </div>
-          <table id="historyTable">
-            <thead><tr><th>Timestamp</th><th>Tipo</th><th>Detalle</th></tr></thead>
-            <tbody></tbody>
-          </table>
+          <div class="table-responsive">
+            <table id="historyTable">
+              <thead><tr><th>Timestamp</th><th>Tipo</th><th>Detalle</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -604,8 +772,9 @@
     let gameType = null;
     let gameScore = 0;
     
-    // Teclado de respaldo
+    // Controles de teclado y táctiles
     const keyState = { left: false, right: false };
+    
     window.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') keyState.left = true;
       if (e.key === 'ArrowRight') keyState.right = true;
@@ -614,6 +783,57 @@
       if (e.key === 'ArrowLeft') keyState.left = false;
       if (e.key === 'ArrowRight') keyState.right = false;
     });
+
+    // Asignación de eventos táctiles para móviles
+    function setupTouchControls() {
+      const btnLeft = document.getElementById('btnTouchLeft');
+      const btnRight = document.getElementById('btnTouchRight');
+      
+      if (btnLeft && btnRight) {
+        const startLeft = (e) => { e.preventDefault(); keyState.left = true; btnLeft.classList.add('active'); };
+        const endLeft = (e) => { e.preventDefault(); keyState.left = false; btnLeft.classList.remove('active'); };
+        
+        const startRight = (e) => { e.preventDefault(); keyState.right = true; btnRight.classList.add('active'); };
+        const endRight = (e) => { e.preventDefault(); keyState.right = false; btnRight.classList.remove('active'); };
+
+        btnLeft.addEventListener('touchstart', startLeft);
+        btnLeft.addEventListener('touchend', endLeft);
+        btnLeft.addEventListener('mousedown', startLeft);
+        btnLeft.addEventListener('mouseup', endLeft);
+
+        btnRight.addEventListener('touchstart', startRight);
+        btnRight.addEventListener('touchend', endRight);
+        btnRight.addEventListener('mousedown', startRight);
+        btnRight.addEventListener('mouseup', endRight);
+      }
+    }
+
+    function toggleSidebar() {
+      const aside = document.getElementById('mainSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      aside.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-menu .nav-item').forEach(el => el.classList.remove('active'));
+      
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) targetContent.classList.add('active');
+      
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+      }
+
+      // Cerrar menú lateral en pantallas móviles tras selección
+      if (window.innerWidth <= 860) {
+        const aside = document.getElementById('mainSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (aside) aside.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
+      }
+    }
 
     const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
     const UART_RX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
@@ -626,6 +846,7 @@
       initCharts();
       initLEDMatrixGrid();
       initWebCarGame();
+      setupTouchControls();
       logHistory("SISTEMA", "Plataforma lista.");
     });
 
@@ -636,23 +857,20 @@
       logHistory("BLE", "Conexión activa.");
 
       [chartDashMotion, chartExpEnv, chartVisMag].forEach(c => {
-        c.data.labels = [];
-        c.data.datasets.forEach(ds => ds.data = []);
-        c.update();
+        if (c) {
+          c.data.labels = [];
+          c.data.datasets.forEach(ds => ds.data = []);
+          c.update();
+        }
       });
-    }
-
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-menu .nav-item').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      event.currentTarget.classList.add('active');
     }
 
     function logConsole(msg) {
       const c = document.getElementById('bleConsole');
-      c.innerHTML += `<br>> ${msg}`;
-      c.scrollTop = c.scrollHeight;
+      if (c) {
+        c.innerHTML += `<br>> ${msg}`;
+        c.scrollTop = c.scrollHeight;
+      }
     }
 
     function logHistory(type, detail) {
@@ -668,6 +886,7 @@
 
     function initLEDMatrixGrid() {
       const grid = document.getElementById('ledMatrixDesigner');
+      if (!grid) return;
       grid.innerHTML = '';
       for (let i = 0; i < 25; i++) {
         const pixel = document.createElement('div');
@@ -693,35 +912,41 @@
     }
 
     function initCharts() {
-      const ctxDash = document.getElementById('dashMotionChart').getContext('2d');
-      chartDashMotion = new Chart(ctxDash, {
-        type: 'line',
-        data: { labels: [], datasets: [
-          { label: 'Ax', borderColor: '#ef4444', data: [], tension: 0.3, pointRadius:0 },
-          { label: 'Ay', borderColor: '#10b981', data: [], tension: 0.3, pointRadius:0 },
-          { label: 'Az', borderColor: '#3b82f6', data: [], tension: 0.3, pointRadius:0 }
-        ]},
-        options: { responsive: true, animation: false, scales: { x: { display: false } } }
-      });
+      const ctxDash = document.getElementById('dashMotionChart')?.getContext('2d');
+      if (ctxDash) {
+        chartDashMotion = new Chart(ctxDash, {
+          type: 'line',
+          data: { labels: [], datasets: [
+            { label: 'Ax', borderColor: '#ef4444', data: [], tension: 0.3, pointRadius:0 },
+            { label: 'Ay', borderColor: '#10b981', data: [], tension: 0.3, pointRadius:0 },
+            { label: 'Az', borderColor: '#3b82f6', data: [], tension: 0.3, pointRadius:0 }
+          ]},
+          options: { responsive: true, maintainAspectRatio: true, animation: false, scales: { x: { display: false } } }
+        });
+      }
 
-      const ctxEnv = document.getElementById('explorerEnvChart').getContext('2d');
-      chartExpEnv = new Chart(ctxEnv, {
-        type: 'line',
-        data: { labels: [], datasets: [
-          { label: 'Temp (°C)', borderColor: '#f59e0b', data: [] },
-          { label: 'Humedad (%)', borderColor: '#06b6d4', data: [] }
-        ]},
-        options: { responsive: true, animation: false, scales: { x: { display: false } } }
-      });
+      const ctxEnv = document.getElementById('explorerEnvChart')?.getContext('2d');
+      if (ctxEnv) {
+        chartExpEnv = new Chart(ctxEnv, {
+          type: 'line',
+          data: { labels: [], datasets: [
+            { label: 'Temp (°C)', borderColor: '#f59e0b', data: [] },
+            { label: 'Humedad (%)', borderColor: '#06b6d4', data: [] }
+          ]},
+          options: { responsive: true, maintainAspectRatio: true, animation: false, scales: { x: { display: false } } }
+        });
+      }
 
-      const ctxVis = document.getElementById('visMagChart').getContext('2d');
-      chartVisMag = new Chart(ctxVis, {
-        type: 'line',
-        data: { labels: [], datasets: [
-          { label: 'Magnitud Movimiento', borderColor: '#7c3aed', backgroundColor: 'rgba(124, 58, 237, 0.2)', fill: true, data: [] }
-        ]},
-        options: { responsive: true, animation: false, scales: { x: { display: false } } }
-      });
+      const ctxVis = document.getElementById('visMagChart')?.getContext('2d');
+      if (ctxVis) {
+        chartVisMag = new Chart(ctxVis, {
+          type: 'line',
+          data: { labels: [], datasets: [
+            { label: 'Magnitud Movimiento', borderColor: '#7c3aed', backgroundColor: 'rgba(124, 58, 237, 0.2)', fill: true, data: [] }
+          ]},
+          options: { responsive: true, maintainAspectRatio: true, animation: false, scales: { x: { display: false } } }
+        });
+      }
     }
 
     async function connectBLE() {
@@ -786,9 +1011,13 @@
     function processIncomingTelemetry(data) {
       state.telemetry = data;
 
-      document.getElementById('dashTemp').innerHTML = `${Number(data.t).toFixed(1)} <span class="sensor-unit">°C</span>`;
-      document.getElementById('dashHum').innerHTML = `${Number(data.h).toFixed(1)} <span class="sensor-unit">%</span>`;
-      document.getElementById('dashLux').innerHTML = `${Math.round(data.l)} <span class="sensor-unit">Lux</span>`;
+      const dashTemp = document.getElementById('dashTemp');
+      const dashHum = document.getElementById('dashHum');
+      const dashLux = document.getElementById('dashLux');
+
+      if (dashTemp) dashTemp.innerHTML = `${Number(data.t).toFixed(1)} <span class="sensor-unit">°C</span>`;
+      if (dashHum) dashHum.innerHTML = `${Number(data.h).toFixed(1)} <span class="sensor-unit">%</span>`;
+      if (dashLux) dashLux.innerHTML = `${Math.round(data.l)} <span class="sensor-unit">Lux</span>`;
       
       const isAPressed = (data.ba == 1 || data.ba === true);
       const isBPressed = (data.bb == 1 || data.bb === true);
@@ -805,33 +1034,47 @@
       if (indA) indA.classList.toggle('active', isAPressed || keyState.left);
       if (indB) indB.classList.toggle('active', isBPressed || keyState.right);
 
-      document.getElementById('expAx').innerText = Number(data.ax).toFixed(3);
-      document.getElementById('expAy').innerText = Number(data.ay).toFixed(3);
-      document.getElementById('expAz').innerText = Number(data.az).toFixed(3);
-      document.getElementById('expGx').innerText = Number(data.gx).toFixed(1);
-      document.getElementById('expGy').innerText = Number(data.gy).toFixed(1);
-      document.getElementById('expGz').innerText = Number(data.gz).toFixed(1);
+      const expAx = document.getElementById('expAx');
+      const expAy = document.getElementById('expAy');
+      const expAz = document.getElementById('expAz');
+      const expGx = document.getElementById('expGx');
+      const expGy = document.getElementById('expGy');
+      const expGz = document.getElementById('expGz');
 
-      pushChartData(chartDashMotion, [data.ax, data.ay, data.az]);
-      pushChartData(chartExpEnv, [data.t, data.h]);
+      if (expAx) expAx.innerText = Number(data.ax).toFixed(3);
+      if (expAy) expAy.innerText = Number(data.ay).toFixed(3);
+      if (expAz) expAz.innerText = Number(data.az).toFixed(3);
+      if (expGx) expGx.innerText = Number(data.gx).toFixed(1);
+      if (expGy) expGy.innerText = Number(data.gy).toFixed(1);
+      if (expGz) expGz.innerText = Number(data.gz).toFixed(1);
+
+      if (chartDashMotion) pushChartData(chartDashMotion, [data.ax, data.ay, data.az]);
+      if (chartExpEnv) pushChartData(chartExpEnv, [data.t, data.h]);
       
       const mag = Math.sqrt(data.ax**2 + data.ay**2 + data.az**2);
-      pushChartData(chartVisMag, [mag]);
+      if (chartVisMag) pushChartData(chartVisMag, [mag]);
 
       const roll = Math.atan2(data.ay, data.az) * (180 / Math.PI);
       const pitch = Math.atan2(-data.ax, Math.sqrt(data.ay**2 + data.az**2)) * (180 / Math.PI);
-      document.getElementById('cube3D').style.transform = `rotateX(${pitch}deg) rotateY(${roll}deg)`;
-      document.getElementById('visRoll').innerText = roll.toFixed(0);
-      document.getElementById('visPitch').innerText = pitch.toFixed(0);
+      const cube3D = document.getElementById('cube3D');
+      if (cube3D) cube3D.style.transform = `rotateX(${pitch}deg) rotateY(${roll}deg)`;
+      
+      const visRoll = document.getElementById('visRoll');
+      const visPitch = document.getElementById('visPitch');
+      if (visRoll) visRoll.innerText = roll.toFixed(0);
+      if (visPitch) visPitch.innerText = pitch.toFixed(0);
     }
 
     function pushChartData(chart, values) {
+      if (!chart) return;
       if (chart.data.labels.length > 20) {
         chart.data.labels.shift();
         chart.data.datasets.forEach(ds => ds.data.shift());
       }
       chart.data.labels.push('');
-      values.forEach((v, idx) => chart.data.datasets[idx].data.push(v));
+      values.forEach((v, idx) => {
+        if (chart.data.datasets[idx]) chart.data.datasets[idx].data.push(v);
+      });
       chart.update();
     }
 
@@ -875,10 +1118,7 @@
       processIncomingTelemetry({ t, h, l, ax, ay, az, gx:0, gy:0, gz:0, ba: state.telemetry.ba, bb: state.telemetry.bb });
     }
 
-    /* =========================================================================
-       MOTOR DE SIMULACIÓN VISUAL EN CANVAS 2D (CARRERA DE CARRITOS)
-       ========================================================================= */
-    
+    /* MOTOR DE SIMULACIÓN VISUAL EN CANVAS 2D (CARRERA DE CARRITOS) */
     function stopCurrentWebGame() {
       if (currentGameLoop) {
         cancelAnimationFrame(currentGameLoop);
@@ -891,9 +1131,11 @@
       stopCurrentWebGame();
       gameType = 'car';
       gameScore = 0;
-      document.getElementById('gameTitleDisplay').innerText = "Carrera 2D Arcade (Control por Botones idea.held)";
+      const titleDisplay = document.getElementById('gameTitleDisplay');
+      if (titleDisplay) titleDisplay.innerText = "Carrera 2D Arcade (Control BLE y Táctil)";
 
       const canvas = document.getElementById('arcadeCanvas');
+      if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
       let playerX = canvas.width / 2 - 18;
@@ -908,7 +1150,11 @@
       function renderCar(x, y, color, isPlayer=false) {
         ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.roundRect(x, y, playerWidth, playerHeight, 8);
+        if (ctx.roundRect) {
+          ctx.roundRect(x, y, playerWidth, playerHeight, 8);
+        } else {
+          ctx.rect(x, y, playerWidth, playerHeight);
+        }
         ctx.fill();
 
         ctx.fillStyle = isPlayer ? '#06b6d4' : '#ef4444';
@@ -977,7 +1223,8 @@
           if (obs.y > canvas.height) {
             obstacles.splice(i, 1);
             gameScore += 10;
-            document.getElementById('arcadeScore').innerText = `${gameScore}`;
+            const scoreEl = document.getElementById('arcadeScore');
+            if (scoreEl) scoreEl.innerText = `${gameScore}`;
           }
         }
 
@@ -1036,16 +1283,19 @@
     }
 
     function updateAISamplesUI() {
-      document.getElementById('aiDatasetStats').innerText = `Muestras recolectadas: ${state.ai.dataset.length}`;
+      const stats = document.getElementById('aiDatasetStats');
+      if (stats) stats.innerText = `Muestras recolectadas: ${state.ai.dataset.length}`;
       const tbody = document.querySelector('#aiSamplesTable tbody');
-      tbody.innerHTML = state.ai.dataset.map((item, idx) => `
-        <tr>
-          <td>${idx + 1}</td>
-          <td><span class="badge">${item.label}</span></td>
-          <td style="font-family:'JetBrains Mono'; font-size:0.75rem;">[${item.vector.slice(0, 3).join(', ')}...]</td>
-          <td><button class="btn btn-outline btn-danger btn-sm" onclick="deleteAISample(${item.id})"><i class="fa-solid fa-trash"></i></button></td>
-        </tr>
-      `).join('');
+      if (tbody) {
+        tbody.innerHTML = state.ai.dataset.map((item, idx) => `
+          <tr>
+            <td>${idx + 1}</td>
+            <td><span class="badge">${item.label}</span></td>
+            <td style="font-family:'JetBrains Mono'; font-size:0.75rem;">[${item.vector.slice(0, 3).join(', ')}...]</td>
+            <td><button class="btn btn-outline btn-danger btn-sm" onclick="deleteAISample(${item.id})"><i class="fa-solid fa-trash"></i></button></td>
+          </tr>
+        `).join('');
+      }
     }
 
     function deleteAISample(id) {
@@ -1066,8 +1316,11 @@
         return;
       }
       state.ai.model = true;
-      document.getElementById('dashAIState').innerText = "Entrenado (k-NN)";
-      document.getElementById('dashAIState').style.color = "var(--accent-green)";
+      const dashAIState = document.getElementById('dashAIState');
+      if (dashAIState) {
+        dashAIState.innerText = "Entrenado (k-NN)";
+        dashAIState.style.color = "var(--accent-green)";
+      }
       alert("¡Modelo entrenado exitosamente!");
     }
 
@@ -1078,21 +1331,24 @@
 
     function saveCurrentAIModel() {
       if (!state.ai.dataset.length) return;
-      const modelName = document.getElementById('aiModelName').value || "modelo_ideasense";
+      const modelNameInput = document.getElementById('aiModelName');
+      const modelName = (modelNameInput && modelNameInput.value) ? modelNameInput.value : "modelo_ideasense";
       state.ai.savedModels.push({ id: Date.now(), name: modelName, count: state.ai.dataset.length, date: new Date().toLocaleTimeString(), dataset: JSON.parse(JSON.stringify(state.ai.dataset)) });
       renderSavedModelsTable();
     }
 
     function renderSavedModelsTable() {
       const tbody = document.querySelector('#savedModelsTable tbody');
-      tbody.innerHTML = state.ai.savedModels.map(m => `
-        <tr>
-          <td>${m.name}</td>
-          <td>${m.count}</td>
-          <td>${m.date}</td>
-          <td><button class="btn btn-outline btn-sm" onclick="loadSavedAIModel(${m.id})">Cargar</button></td>
-        </tr>
-      `).join('');
+      if (tbody) {
+        tbody.innerHTML = state.ai.savedModels.map(m => `
+          <tr>
+            <td>${m.name}</td>
+            <td>${m.count}</td>
+            <td>${m.date}</td>
+            <td><button class="btn btn-outline btn-sm" onclick="loadSavedAIModel(${m.id})">Cargar</button></td>
+          </tr>
+        `).join('');
+      }
     }
 
     function loadSavedAIModel(id) {
@@ -1116,9 +1372,9 @@
       if (state.experiment.recording) {
         state.experiment.data = [];
         state.experiment.activeSensors = ['temp', 'hum', 'lux', 'accel', 'gyro'];
-        btnText.innerText = "Detener y Guardar";
+        if (btnText) btnText.innerText = "Detener y Guardar";
       } else {
-        btnText.innerText = "Iniciar Grabación";
+        if (btnText) btnText.innerText = "Iniciar Grabación";
         const exp = { id: Date.now(), name: "Experimento", count: state.experiment.data.length, date: new Date().toLocaleTimeString(), data: [...state.experiment.data] };
         state.experiment.list.push(exp);
         renderExperimentsTable();
@@ -1127,16 +1383,18 @@
 
     function renderExperimentsTable() {
       const tbody = document.querySelector('#experimentsTable tbody');
-      tbody.innerHTML = state.experiment.list.map(e => `
-        <tr>
-          <td>${e.id}</td>
-          <td>${e.name}</td>
-          <td>TODOS</td>
-          <td>${e.count}</td>
-          <td>${e.date}</td>
-          <td><button class="btn btn-outline btn-sm" onclick="exportExperimentCSV(${e.id})">CSV</button></td>
-        </tr>
-      `).join('');
+      if (tbody) {
+        tbody.innerHTML = state.experiment.list.map(e => `
+          <tr>
+            <td>${e.id}</td>
+            <td>${e.name}</td>
+            <td>TODOS</td>
+            <td>${e.count}</td>
+            <td>${e.date}</td>
+            <td><button class="btn btn-outline btn-sm" onclick="exportExperimentCSV(${e.id})">CSV</button></td>
+          </tr>
+        `).join('');
+      }
     }
 
     function exportExperimentCSV(id) {
@@ -1160,7 +1418,8 @@
     }
 
     function saveSettings() {
-      const interval = document.getElementById('cfgInterval').value;
+      const intervalInput = document.getElementById('cfgInterval');
+      const interval = intervalInput ? intervalInput.value : 40;
       sendBLECommand(JSON.stringify({ cmd: "config", interval: parseInt(interval) }));
     }
   </script>
