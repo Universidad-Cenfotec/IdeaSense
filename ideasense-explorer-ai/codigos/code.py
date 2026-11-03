@@ -5,7 +5,6 @@ Firmware Completo para IdeaBoard (ESP32) - CircuitPython 10.x
 ===============================================================================
 - Muestreo y transmisión BLE a 25 Hz (40 ms).
 - Lectura de botones mediante la librería 'ideasense' (idea.held) o GPIO directo.
-- Lectura de acelerómetro y giroscopio mediante idea.accel e idea.gyro.
 - Envío continuo en JSON de telemetría y estado de botones ("ba", "bb").
 ===============================================================================
 """
@@ -36,6 +35,8 @@ except Exception as err:
 hw_addresses = []
 telemetry_interval = 0.04  # 25 Hz
 last_telemetry_time = 0.0
+# AGRO: bitmask de sensores NO detectados cuyo valor es simulado (1=T/H, 2=IMU, 4=luz). 0 = todo real.
+sim = {"f": 0}
 was_connected = False
 
 i2c = None
@@ -80,11 +81,29 @@ def initialize_hardware():
                 except Exception:
                     pass
 
-    try:
-        i2c = busio.I2C(board.SCL, board.SDA, frequency=400000)
-        print("[HW] Bus I2C activo a 400 kHz.")
-    except Exception as e:
-        print(f"[HW WARN] Bus I2C: {e}")
+    # AGRO: la libreria IdeaSense ya abre el bus (error "IO22 in use" al abrir otro): se reutiliza.
+    i2c = None
+    for owner in (idea, ib):
+        for name in ("i2c", "_i2c", "i2c_bus"):
+            cand = getattr(owner, name, None) if owner else None
+            if cand is not None and hasattr(cand, "try_lock"):
+                i2c = cand
+                print(f"[HW] Usando bus I2C de la libreria ({name}).")
+                break
+        if i2c:
+            break
+    if i2c is None:
+        try:
+            i2c = board.I2C()
+            print("[HW] Usando board.I2C().")
+        except Exception as e:
+            print(f"[HW WARN] board.I2C(): {e}")
+    if i2c is None:
+        try:
+            i2c = busio.I2C(board.SCL, board.SDA, frequency=400000)
+            print("[HW] Bus I2C propio a 400 kHz.")
+        except Exception as e:
+            print(f"[HW WARN] Bus I2C: {e}")
 
 
 def update_led_matrix(pixel_array):
@@ -160,6 +179,7 @@ def initialize_ideasense():
         except Exception:
             pass
 
+    print("[I2C] dispositivos:", [hex(a) for a in hw_addresses])
     update_led_matrix([0] * 25)
 
 
@@ -208,41 +228,30 @@ def read_environment_sensors():
 
             temp_c = -45.0 + (175.0 * raw_temp / 65535.0)
             humidity = 100.0 * (raw_hum / 65535.0)
+            sim["f"] &= ~1
             return temp_c, humidity
         except Exception:
             pass
+    sim["f"] |= 1  # valor simulado
     t_base = time.monotonic()
     return 23.5 + (t_base % 2.0) * 0.1, 50.0 + (t_base % 3.0) * 0.15
 
 
 def read_motion_sensors():
-    """Lee acelerometro y giroscopio usando IdeaSense cuando esta disponible.
-
-    IdeaSense devuelve:
-      - accel: aceleracion X, Y, Z en g
-      - gyro: velocidad angular X, Y, Z en grados/segundo
-
-    Si la biblioteca no esta disponible, utiliza la lectura I2C alternativa.
-    Si ninguna lectura funciona, devuelve ceros para no presentar datos
-    simulados como si fueran mediciones reales.
-    """
+    """Lee acelerometro y giroscopio con IdeaSense (idea.accel / idea.gyro) si esta disponible.
+    Respaldo: I2C directo. Si nada funciona devuelve ceros y marca sim (no se inventan datos)."""
     if use_ideasense_lib and idea:
         try:
             ax, ay, az = idea.accel
             gx, gy, gz = idea.gyro
-
-            return (
-                float(ax), float(ay), float(az),
-                float(gx), float(gy), float(gz)
-            )
+            sim["f"] &= ~2
+            return float(ax), float(ay), float(az), float(gx), float(gy), float(gz)
         except Exception as err:
             print(f"[IMU WARN] No se pudo leer la IMU mediante IdeaSense: {err}")
-            return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 
     if i2c and 0x6A in hw_addresses:
         try:
             buf = bytearray(12)
-
             while not i2c.try_lock():
                 pass
             try:
@@ -257,15 +266,15 @@ def read_motion_sensors():
             gx = to_signed(buf[0], buf[1]) * 0.00875
             gy = to_signed(buf[2], buf[3]) * 0.00875
             gz = to_signed(buf[4], buf[5]) * 0.00875
-
             ax = to_signed(buf[6], buf[7]) * 0.000061
             ay = to_signed(buf[8], buf[9]) * 0.000061
             az = to_signed(buf[10], buf[11]) * 0.000061
-
+            sim["f"] &= ~2
             return ax, ay, az, gx, gy, gz
         except Exception as err:
             print(f"[IMU WARN] Error leyendo la IMU por I2C: {err}")
 
+    sim["f"] |= 2
     return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 
 
@@ -277,12 +286,14 @@ def read_light_sensor():
                 try:
                     i2c.writeto_then_readfrom(0x29, bytes([0x88]), buf)
                     ch0 = (buf[3] << 8) | buf[2]
+                    sim["f"] &= ~4
                     return float(ch0)
                 finally:
                     i2c.unlock()
         except Exception:
             pass
 
+    sim["f"] |= 4  # valor simulado
     t = time.monotonic()
     return round(280.0 + (t * 12.0 % 150.0), 1)
 
@@ -333,7 +344,8 @@ def send_telemetry():
         "gy": round(gy, 1),
         "gz": round(gz, 1),
         "ba": state_a,
-        "bb": state_b
+        "bb": state_b,
+        "sim": sim["f"]  # AGRO: 0 = lecturas reales
     }
 
     payload = json.dumps(telemetry_packet) + "\n"
