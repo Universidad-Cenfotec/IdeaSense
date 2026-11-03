@@ -167,7 +167,7 @@ ideasense-explorer-ai
 
 | Componente | Archivo / Enlace | Descripción |
 | :--- | :--- | :--- |
-| 🌐 **Aplicación Web** | [Abrir Plataforma Web](https://universidad-cenfotec.github.io/IdeaSense/ideasense-explorer-ai/codigos/index.html) | Dashboard, Gamepad Arcade 2D, AI Lab y Experimentos |
+| 🌐 **Aplicación Web** | [Abrir Plataforma Web](https://universidad-cenfotec.github.io/IdeaSense/ideasense-explorer-ai/) | Dashboard, Gamepad Arcade 2D, AI Lab y Experimentos |
 | 💻 **Código Fuente Web** | [`codigos/index.html`](codigos/index.html) | Código HTML5, JavaScript y Chart.js |
 | 🐍 **Firmware Placa** | [`codigos/code.py`](codigos/code.py) | Programa CircuitPython 9.x con transmisión BLE |
 
