@@ -1044,6 +1044,7 @@ aside{background:#0a1611}
 
     function processIncomingTelemetry(data) {
       state.telemetry = data;
+      aiFeed(data);
 
       const dashTemp = document.getElementById('dashTemp');
       const dashHum = document.getElementById('dashHum');
@@ -1290,18 +1291,89 @@ aside{background:#0a1611}
       }
     }
 
+    /* ===== AI LAB: captura, entrenamiento y clasificación k-NN (versión funcional) =====
+       Captura 3 s de IMU -> vector de 12 características (media y desvío de ax..gz) -> k-NN (k=3)
+       sobre vectores normalizados (z-score). Las lecturas con IMU simulado (sim&2) no se usan. */
+    const AI_WIN = 75, AI_K = 3;
+    const FEAT_NAMES = ['μ ax','μ ay','μ az','μ gx','μ gy','μ gz','σ ax','σ ay','σ az','σ gx','σ gy','σ gz'];
+
+    function aiFeed(data) {
+      if (!data || (data.sim & 2)) return;
+      const row = [data.ax, data.ay, data.az, data.gx, data.gy, data.gz].map(Number);
+      if (row.some(v => !Number.isFinite(v))) return;
+      if (state.ai.isCapturing) state.ai.captureBuffer.push(row);
+      const w = state.ai.window || (state.ai.window = []);
+      w.push(row); if (w.length > AI_WIN) w.shift();
+      const now = Date.now();
+      if (state.ai.model && w.length >= AI_WIN * 0.66 && now - (state.ai.lastEval || 0) > 500) {
+        state.ai.lastEval = now; aiClassifyLive(extractFeatures(w));
+      }
+    }
+
+    function aiBuildModel(ds) {
+      const n = ds.length, mean = Array(12).fill(0), std = Array(12).fill(0);
+      ds.forEach(s => s.vector.forEach((v, i) => mean[i] += v / n));
+      ds.forEach(s => s.vector.forEach((v, i) => std[i] += (v - mean[i]) ** 2 / n));
+      for (let i = 0; i < 12; i++) std[i] = Math.max(Math.sqrt(std[i]), 0.02);
+      return { mean, std, k: Math.min(AI_K, n),
+               samples: ds.map(s => ({ label: s.label, z: s.vector.map((v, i) => (v - mean[i]) / std[i]) })) };
+    }
+
+    function aiKnn(model, z, skip) {
+      const near = model.samples
+        .map((s, idx) => ({ label: s.label, idx, d: Math.sqrt(s.z.reduce((a, v, i) => a + (v - z[i]) ** 2, 0)) }))
+        .filter(x => x.idx !== skip).sort((a, b) => a.d - b.d).slice(0, model.k);
+      const votes = {}; let tot = 0;
+      near.forEach(x => { const w = 1 / (x.d + 0.1); votes[x.label] = (votes[x.label] || 0) + w; tot += w; });
+      const best = Object.entries(votes).sort((a, b) => b[1] - a[1])[0];
+      return { label: best[0], conf: best[1] / tot * 100 };
+    }
+
+    function aiSet(id, text, color) {
+      const el = document.getElementById(id);
+      if (el) { el.innerText = text; if (color) el.style.color = color; }
+    }
+
+    function aiResetDisplay() {
+      aiSet('dashAIState', 'Sin Entrenar', 'var(--accent-warning)');
+      aiSet('aiPredictedClass', '--'); aiSet('aiConfidence', '0%'); aiSet('aiAnomalyScore', '0.00');
+      const st = document.getElementById('aiAnomalyStatus');
+      if (st) { st.innerText = 'Normal'; st.style.background = '#1e293b'; }
+      aiSet('aiExplainability', 'Cargue ejemplos y entrene para evaluar qué variables influyen en la clasificación.');
+    }
+
+    function aiClassifyLive(vec) {
+      const m = state.ai.model; if (!m) return;
+      const z = vec.map((v, i) => (v - m.mean[i]) / m.std[i]);
+      const r = aiKnn(m, z, -1);
+      const score = z.reduce((a, v) => a + Math.abs(v), 0) / z.length;
+      aiSet('aiPredictedClass', r.label); aiSet('aiConfidence', r.conf.toFixed(0) + '%');
+      aiSet('aiAnomalyScore', score.toFixed(2));
+      const st = document.getElementById('aiAnomalyStatus');
+      if (st) { const an = score > 2.5; st.innerText = an ? 'Anomalía' : 'Normal'; st.style.background = an ? '#7f1d1d' : '#1e293b'; }
+    }
+
     function startAICapture() {
+      if (state.ai.isCapturing) return;
+      if (!state.connected && !state.demoMode) { alert("Conecte la IdeaBoard primero (botón «Conectar IdeaBoard»)."); return; }
+      const selectedClass = document.getElementById('aiClassSelect').value;
       state.ai.isCapturing = true;
       state.ai.captureBuffer = [];
-      const selectedClass = document.getElementById('aiClassSelect').value;
       logConsole(`Capturando datos para '${selectedClass}' por 3s...`);
+      aiSet('aiDatasetStats', `Capturando '${selectedClass}'… mueva la placa durante 3 s`);
 
       setTimeout(() => {
         state.ai.isCapturing = false;
+        const n = state.ai.captureBuffer.length;
+        if (n < 25) {
+          updateAISamplesUI();
+          alert(`No se recibieron suficientes lecturas del IMU (${n}). Verifique la conexión; si la placa informa el IMU como simulado, no se pueden capturar muestras.`);
+          return;
+        }
         const vector = extractFeatures(state.ai.captureBuffer);
         state.ai.dataset.push({ id: Date.now(), label: selectedClass, vector });
         updateAISamplesUI();
-        logHistory("AI LAB", `Muestra capturada para: ${selectedClass}`);
+        logHistory("AI LAB", `Muestra capturada para: ${selectedClass} (${n} lecturas)`);
       }, 3000);
     }
 
@@ -1317,6 +1389,7 @@ aside{background:#0a1611}
     }
 
     function updateAISamplesUI() {
+      if (state.ai.model) { state.ai.model = null; aiResetDisplay(); }
       const stats = document.getElementById('aiDatasetStats');
       if (stats) stats.innerText = `Muestras recolectadas: ${state.ai.dataset.length}`;
       const tbody = document.querySelector('#aiSamplesTable tbody');
@@ -1345,17 +1418,27 @@ aside{background:#0a1611}
     }
 
     function trainAIModel() {
-      if (state.ai.dataset.length < 2) {
-        alert("Se requieren al menos 2 ejemplos para entrenar.");
-        return;
-      }
-      state.ai.model = true;
-      const dashAIState = document.getElementById('dashAIState');
-      if (dashAIState) {
-        dashAIState.innerText = "Entrenado (k-NN)";
-        dashAIState.style.color = "var(--accent-green)";
-      }
-      alert("¡Modelo entrenado exitosamente!");
+      const ds = state.ai.dataset, counts = {};
+      ds.forEach(s => counts[s.label] = (counts[s.label] || 0) + 1);
+      const labels = Object.keys(counts);
+      if (labels.length < 2) { alert("Se necesitan al menos 2 clases distintas (por ejemplo Reposo y Movimiento)."); return; }
+      const few = labels.filter(l => counts[l] < 2);
+      if (few.length) { alert("Capture al menos 2 muestras por clase. Faltan en: " + few.join(', ')); return; }
+      const model = aiBuildModel(ds);
+      let ok = 0;
+      ds.forEach((s, i) => { if (aiKnn(model, model.samples[i].z, i).label === s.label) ok++; });
+      model.acc = Math.round(ok / ds.length * 100);
+      state.ai.model = model;
+      const top = FEAT_NAMES.map((name, i) => {
+        const cm = labels.map(l => { const z = model.samples.filter(s => s.label === l); return z.reduce((a, s) => a + s.z[i], 0) / z.length; });
+        const mu = cm.reduce((a, b) => a + b, 0) / cm.length;
+        const between = cm.reduce((a, c) => a + (c - mu) ** 2, 0) / cm.length;
+        const within = model.samples.reduce((a, s) => a + (s.z[i] - cm[labels.indexOf(s.label)]) ** 2, 0) / model.samples.length;
+        return { name, r: between / (within + 0.01) };
+      }).sort((a, b) => b.r - a.r).slice(0, 3).map(x => x.name);
+      aiSet('dashAIState', `Entrenado (k-NN, ${model.acc}%)`, 'var(--accent-green)');
+      aiSet('aiExplainability', `Variables que más separan las clases: ${top.join(', ')}. Precisión leave-one-out: ${model.acc}% (${ds.length} muestras, ${labels.length} clases).`);
+      alert(`¡Modelo k-NN entrenado! ${ds.length} muestras, ${labels.length} clases. Precisión leave-one-out: ${model.acc}%.\nAhora mueva la placa: la clasificación en vivo aparece en este panel.`);
     }
 
     function createNewAIModel() {
@@ -1394,10 +1477,40 @@ aside{background:#0a1611}
     }
 
     function downloadPythonModel() {
-      if (!state.ai.dataset.length) return;
-      const cleanDataset = state.ai.dataset.map(d => ({ label: d.label, vector: d.vector }));
-      const pyCode = `DATASET = ${JSON.stringify(cleanDataset, null, 4)}\n`;
-      downloadCSV(pyCode, `modelo.py`);
+      if (!state.ai.dataset.length) { alert("No hay muestras. Capture y entrene primero."); return; }
+      const m = aiBuildModel(state.ai.dataset), r4 = a => a.map(v => Number(v.toFixed(4)));
+      const data = state.ai.dataset.map(d => ({ label: d.label, vector: d.vector }));
+      const py = [
+        "# Modelo k-NN generado por IdeaSense Explorer AI (acelerómetro + giroscopio)",
+        "import math",
+        "",
+        `K = ${m.k}`,
+        `MEAN = ${JSON.stringify(r4(m.mean))}`,
+        `STD = ${JSON.stringify(r4(m.std))}`,
+        `DATASET = ${JSON.stringify(data, null, 4)}`,
+        "",
+        "def extract_features(rows):",
+        "    # rows: lista de (ax, ay, az, gx, gy, gz) -> [6 medias + 6 desvios]",
+        "    n = len(rows)",
+        "    means = [sum(r[i] for r in rows) / n for i in range(6)]",
+        "    stds = [math.sqrt(sum((r[i] - means[i]) ** 2 for r in rows) / n) for i in range(6)]",
+        "    return means + stds",
+        "",
+        "def classify(vec):",
+        "    z = [(v - MEAN[i]) / STD[i] for i, v in enumerate(vec)]",
+        "    dist = []",
+        "    for s in DATASET:",
+        "        zs = [(v - MEAN[i]) / STD[i] for i, v in enumerate(s['vector'])]",
+        "        dist.append((math.sqrt(sum((a - b) ** 2 for a, b in zip(z, zs))), s['label']))",
+        "    dist.sort()",
+        "    votes = {}",
+        "    for d, lab in dist[:K]:",
+        "        votes[lab] = votes.get(lab, 0) + 1 / (d + 0.1)",
+        "    best = max(votes, key=votes.get)",
+        "    return best, 100 * votes[best] / sum(votes.values())",
+        ""
+      ].join('\n');
+      downloadCSV(py, (document.getElementById('aiModelName')?.value || 'modelo') + '.py');
     }
 
     function toggleExperimentRecord() {
