@@ -420,6 +420,8 @@ aside{background:#0a1611}
 .ag-alert.back{border-color:#22c55e}
 .ag-th{width:80px;display:inline-block}
 .ag-rec{color:#f87171;font-weight:700}
+.ag-footer{flex-shrink:0;display:flex;flex-wrap:wrap;gap:6px 24px;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid var(--border-color);background:#0a1611;font-size:.78rem;color:var(--text-muted)}
+.ag-footer a{color:var(--accent-cyan);text-decoration:none}.ag-footer a:hover{text-decoration:underline}
 @media(max-width:1100px){.ag-row2{grid-template-columns:1fr}}
   </style>
 </head>
@@ -777,6 +779,12 @@ aside{background:#0a1611}
       </div>
 
     </div>
+
+    <footer class="ag-footer">
+      <span><b>IdeaSense Explorer AI</b> · Universidad CENFOTEC</span>
+      <span>Mediciones del aire alrededor de IdeaBoard: no miden humedad del suelo ni diagnostican la salud de una planta.</span>
+      <a href="https://github.com/Universidad-Cenfotec/IdeaSense" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> Código en GitHub</a>
+    </footer>
   </main>
 
   <script>
@@ -1476,7 +1484,7 @@ document.querySelector('.brand-title').innerHTML = 'IdeaSense <span>Agro</span>'
 const NAV = [['agroDash','fa-seedling','Dashboard Agro'],['agroAn','fa-chart-line','Análisis ambiental'],['agroExp','fa-vial','Experimentos Agro'],['agroML','fa-brain','IA y datos ambientales']];
 const menu = document.querySelector('.nav-menu');
 menu.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-menu.insertAdjacentHTML('afterbegin', NAV.map((n, i) => `<li class="nav-item${i ? '' : ' active'}" onclick="switchTab('${n[0]}')"><i class="fa-solid ${n[1]}"></i> ${n[2]}</li>`).join('') + '<li class="nav-sep">IdeaSense original</li>');
+menu.insertAdjacentHTML('afterbegin', NAV.map((n, i) => `<li class="nav-item${i ? '' : ' active'}" onclick="switchTab('${n[0]}')"><i class="fa-solid ${n[1]}"></i> ${n[2]}</li>`).join('') + '<li class="nav-sep">Más módulos</li>');
 document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
 const NOTE = 'Mediciones del <b>aire alrededor de IdeaBoard</b>. No miden humedad del suelo ni diagnostican la salud de una planta.';
 const thRow = k => `<tr><td>${V[k].n} (${V[k].u})</td><td><input class="form-control ag-th" type="number" step="any" data-k="${k}" data-i="0" value="${A.cfg[k][0]}"> a <input class="form-control ag-th" type="number" step="any" data-k="${k}" data-i="1" value="${A.cfg[k][1]}"></td></tr>`;
