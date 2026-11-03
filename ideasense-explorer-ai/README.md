@@ -8,7 +8,7 @@ Este proyecto ofrece una solución integral web y firmware inalámbrico para tra
  
 ## 💡 La Idea Central de la Plataforma Web
  
-La plataforma **IdeaSense Explorer AI** funciona como un **centro de control todo en uno**, accesible directamente desde el navegador en [**IdeaSense Explorer AI Web**](https://universidad-cenfotec.github.io/IdeaSense/ideasense-explorer-ai/codigos/index.html), diseñada para capturar datos de sensores físicamente a 25 Hz (40 ms) e interactuar bidireccionalmente mediante **Web Bluetooth LE (Nordic UART Service)**. Todo vive en un único archivo `index.html`: no requiere servidor, instalación ni cuenta.
+La plataforma **IdeaSense Explorer AI** funciona como un **centro de control todo en uno**, accesible directamente desde el navegador en [**IdeaSense Explorer AI Web**](https://universidad-cenfotec.github.io/IdeaSense/ideasense-explorer-ai/), diseñada para capturar datos de sensores físicamente a 25 Hz (40 ms) e interactuar bidireccionalmente mediante **Web Bluetooth LE (Nordic UART Service)**. Todo vive en un único archivo `index.html`: no requiere servidor, instalación ni cuenta.
  
 En lugar de requerir múltiples programas independientes, la plataforma integra en un solo panel web:
  
