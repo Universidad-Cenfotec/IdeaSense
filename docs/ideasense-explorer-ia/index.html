@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IdeaSense Explorer AI – Agro Edition | DigiBuild · CENFOTEC</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --bg-card: #111625;
+      --bg-card-hover: #182035;
+      --border-color: #1e293b;
+      
+      --primary: #7c3aed;
+      --primary-hover: #6d28d9;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-warning: #f59e0b;
+      --accent-danger: #ef4444;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --sidebar-width: 250px;
+      --header-height: 64px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* Sidebar & Drawer */
+    aside {
+      width: var(--sidebar-width);
+      background: #0b0f19;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 30;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 25;
+    }
+
+    .brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .brand-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--primary), var(--accent-cyan));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: bold;
+    }
+    .brand-title { font-weight: 700; font-size: 1.05rem; letter-spacing: 0.5px; }
+    .brand-title span { color: var(--accent-cyan); }
+
+    .nav-menu { list-style: none; padding: 15px 10px; flex: 1; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 8px;
+      color: var(--text-muted); cursor: pointer;
+      transition: all 0.2s ease; margin-bottom: 4px;
+      font-size: 0.9rem; font-weight: 500;
+    }
+    .nav-item:hover { background: var(--bg-card); color: var(--text-main); }
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.05));
+      color: var(--accent-cyan);
+      border-left: 3px solid var(--accent-cyan);
+    }
+
+    main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+    header {
+      min-height: var(--header-height);
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .hamburger-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      font-size: 1.1rem;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .hamburger-btn:hover { background: var(--bg-card); }
+
+    .header-left { display: flex; align-items: center; gap: 12px; }
+
+    .status-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px; font-size: 0.78rem;
+      font-weight: 600; background: var(--bg-card); border: 1px solid var(--border-color);
+    }
+    .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); }
+    .badge.connected .badge-dot { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+    .badge.demo .badge-dot { background: var(--accent-warning); box-shadow: 0 0 8px var(--accent-warning); }
+
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn {
+      background: var(--primary); color: #fff; border: none;
+      padding: 8px 16px; border-radius: 6px; font-weight: 600;
+      font-size: 0.85rem; cursor: pointer; display: inline-flex;
+      align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+    .btn-outline:hover { background: var(--bg-card); }
+    .btn-danger { background: var(--accent-danger); }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-sm { padding: 4px 8px; font-size: 0.78rem; }
+
+    .content-area { flex: 1; overflow-y: auto; padding: 24px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .grid { display: grid; gap: 20px; }
+    .grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: rgba(124, 58, 237, 0.4); }
+
+    .card-title {
+      font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px;
+    }
+
+    .sensor-val { font-size: 1.8rem; font-weight: 700; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
+    .sensor-unit { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; margin-left: 4px; }
+
+    .led-matrix-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+      max-width: 250px; margin: 0 auto;
+    }
+    .led-pixel {
+      aspect-ratio: 1; background: #1e293b; border-radius: 4px;
+      cursor: pointer; transition: all 0.2s; border: 1px solid #334155;
+    }
+    .led-pixel.active {
+      background: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan);
+    }
+
+    .cube-container {
+      perspective: 800px; height: 180px; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .cube {
+      width: 80px; height: 80px; position: relative;
+      transform-style: preserve-3d; transition: transform 0.1s linear;
+    }
+    .cube-face {
+      position: absolute; width: 80px; height: 80px;
+      border: 2px solid var(--accent-cyan); background: rgba(6, 182, 212, 0.1);
+      display: flex; align-items: center; justify-content: center; font-weight: bold;
+    }
+    .cube-face.front  { transform: translateZ(40px); }
+    .cube-face.back   { transform: rotateY(180deg) translateZ(40px); }
+    .cube-face.right  { transform: rotateY(90deg) translateZ(40px); }
+    .cube-face.left   { transform: rotateY(-90deg) translateZ(40px); }
+    .cube-face.top    { transform: rotateX(90deg) translateZ(40px); }
+    .cube-face.bottom { transform: rotateX(-90deg) translateZ(40px); }
+
+    .game-canvas-container {
+      position: relative;
+      width: 100%;
+      min-height: 300px;
+      max-height: 420px;
+      background: #020408;
+      border-radius: 10px;
+      border: 2px solid var(--border-color);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+    canvas.game-surface {
+      background: #0d111a;
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+      border-radius: 6px;
+      max-width: 100%;
+      height: auto;
+    }
+    .game-controls-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    .game-btn-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: #0b0f19;
+      border: 1px solid var(--border-color);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+    .game-btn-indicator.active {
+      background: var(--accent-green);
+      color: #000;
+      font-weight: bold;
+      box-shadow: 0 0 10px var(--accent-green);
+    }
+
+    .mobile-touch-controls {
+      display: none;
+      gap: 12px;
+      margin-top: 15px;
+      width: 100%;
+    }
+    .touch-btn {
+      flex: 1;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 10px;
+      background: var(--bg-card-hover);
+      border: 1px solid var(--accent-cyan);
+      color: var(--text-main);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .touch-btn:active, .touch-btn.active {
+      background: var(--accent-cyan);
+      color: #000;
+      box-shadow: 0 0 12px var(--accent-cyan);
+    }
+
+    /* Tabla responsiva con scroll horizontal */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 10px;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 320px; }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+    th { background: #0b0f19; color: var(--text-muted); font-weight: 600; }
+
+    .console-box {
+      background: #04060a; border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 12px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem; height: 180px; overflow-y: auto; color: var(--accent-cyan);
+    }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-muted); }
+    .form-control {
+      width: 100%; background: #0b0f19; border: 1px solid var(--border-color);
+      color: #fff; padding: 8px 12px; border-radius: 6px; font-family: inherit;
+    }
+    
+    .checkbox-group {
+      display: flex; gap: 15px; flex-wrap: wrap; margin-top: 8px;
+    }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-main);
+      cursor: pointer;
+    }
+    .checkbox-item input { accent-color: var(--primary); cursor: pointer; }
+
+    /* MEDIA QUERIES PARA ADAPTACIÓN MÓVIL */
+    @media (max-width: 860px) {
+      aside {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 270px;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 25px rgba(0,0,0,0.6);
+      }
+      aside.active {
+        transform: translateX(0);
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      .hamburger-btn {
+        display: inline-flex;
+      }
+      header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px 14px;
+        gap: 10px;
+      }
+      .header-left {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .status-group {
+        justify-content: flex-end;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .header-actions .btn {
+        flex: 1;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+      }
+      .content-area {
+        padding: 14px;
+      }
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+      .sensor-val {
+        font-size: 1.5rem;
+      }
+      .mobile-touch-controls {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .badge {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+      }
+      .brand-title {
+        font-size: 0.95rem;
+      }
+      .card {
+        padding: 14px;
+      }
+      .btn {
+        padding: 8px 10px;
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+  <style>
+/* ===== AGRO EDITION: estilos ===== */
+/* IdeaSense Explorer AI – Agro Edition. Paleta en variables: cambiar aquí para ajustar a la identidad oficial CENFOTEC/DigiBuild. */
+:root{--bg-dark:#07110d;--bg-card:#0f1d17;--bg-card-hover:#16291f;--border-color:#1f3a2c;
+--primary:#16a34a;--primary-hover:#15803d;--accent-cyan:#4ade80;--accent-green:#22c55e;--accent-blue:#38bdf8;}
+aside{background:#0a1611}
+.nav-sep{list-style:none;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);padding:14px 16px 6px}
+.ag-banner{padding:12px 18px;border-radius:10px;font-weight:600;margin-bottom:18px;border:1px solid var(--border-color);background:var(--bg-card)}
+.ag-banner.real{background:#052e16;border-color:#22c55e;color:#bbf7d0}
+.ag-banner.demo,.ag-banner.sim{background:#451a03;border-color:#f59e0b;color:#fde68a}
+.ag-banner.warn{background:#1e293b;border-color:#94a3b8;color:#e2e8f0}
+.ag-kpi{text-align:center}
+.ag-big{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:clamp(2.6rem,5.5vw,4.4rem);line-height:1.1;margin:6px 0}
+.ag-big span{font-size:1rem;color:var(--text-muted);margin-left:6px;font-weight:400}
+.ag-chip{display:inline-block;padding:4px 14px;border-radius:20px;font-size:.85rem;font-weight:700;background:#1e293b}
+.ag-chip.ag-ok{background:#14532d;color:#bbf7d0}.ag-chip.ag-low{background:#0c4a6e;color:#bae6fd}.ag-chip.ag-high{background:#7c2d12;color:#fed7aa}
+.ag-sub{font-size:.85rem;color:var(--text-muted);margin-top:8px;min-height:1.2em}
+.ag-row2{grid-template-columns:2fr 1fr;margin-top:20px}
+.ag-chartbox{position:relative;height:320px}
+.ag-note{font-size:.8rem;color:var(--text-muted);margin-top:14px}
+.ag-alert{padding:8px 12px;border-left:3px solid #f59e0b;background:#14201a;margin-bottom:8px;font-size:.85rem;border-radius:4px}
+.ag-alert.back{border-color:#22c55e}
+.ag-th{width:80px;display:inline-block}
+.ag-rec{color:#f87171;font-weight:700}
+.ag-footer{flex-shrink:0;display:flex;flex-wrap:wrap;gap:6px 24px;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid var(--border-color);background:#0a1611;font-size:.78rem;color:var(--text-muted)}
+.ag-footer a{color:var(--accent-cyan);text-decoration:none}.ag-footer a:hover{text-decoration:underline}
+@media(max-width:1100px){.ag-row2{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+  <!-- Drawer Overlay para Móviles -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <aside id="mainSidebar">
+    <div class="brand">
+      <div class="brand-icon"><i class="fa-solid fa-microchip"></i></div>
+      <div class="brand-title">IdeaSense <span>AI</span></div>
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-item active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</li>
+      <li class="nav-item" onclick="switchTab('explorer')"><i class="fa-solid fa-wave-square"></i> Explorer</li>
+      <li class="nav-item" onclick="switchTab('games')"><i class="fa-solid fa-gamepad"></i> Juegos Web (Gamepad)</li>
+      <li class="nav-item" onclick="switchTab('ailab')"><i class="fa-solid fa-brain"></i> AI Lab</li>
+      <li class="nav-item" onclick="switchTab('experiments')"><i class="fa-solid fa-flask"></i> Experimentos</li>
+      <li class="nav-item" onclick="switchTab('visualization')"><i class="fa-solid fa-cube"></i> Visualización</li>
+      <li class="nav-item" onclick="switchTab('history')"><i class="fa-solid fa-clock-rotate-left"></i> Historial</li>
+      <li class="nav-item" onclick="switchTab('settings')"><i class="fa-solid fa-sliders"></i> Configuración</li>
+    </ul>
+  </aside>
+
+  <main>
+    <header>
+      <div class="header-left">
+        <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Abrir Menú"><i class="fa-solid fa-bars"></i></button>
+        <div class="status-group">
+          <div class="badge" id="bleBadge"><span class="badge-dot"></span> <span id="bleStatusText">Desconectado</span></div>
+          <div class="badge" id="modeBadge"><span class="badge-dot"></span> <span id="modeStatusText">Modo Real</span></div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline" id="btnToggleDemo" onclick="toggleDemoMode()"><i class="fa-solid fa-flask-vial"></i> Modo DEMO</button>
+        <button class="btn" id="btnConnect" onclick="connectBLE()"><i class="fa-brands fa-bluetooth-b"></i> Conectar IdeaBoard</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+
+      <!-- 1. DASHBOARD -->
+      <div id="dashboard" class="tab-content active">
+        <div class="grid grid-4" style="margin-bottom: 20px;">
+          <div class="card">
+            <div class="card-title">Temperatura <i class="fa-solid fa-temperature-half"></i></div>
+            <div class="sensor-val" id="dashTemp">-- <span class="sensor-unit">°C</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Humedad <i class="fa-solid fa-droplet"></i></div>
+            <div class="sensor-val" id="dashHum">-- <span class="sensor-unit">%</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Iluminación <i class="fa-solid fa-sun"></i></div>
+            <div class="sensor-val" id="dashLux">-- <span class="sensor-unit">cuentas ALS</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Modelo IA <i class="fa-solid fa-robot"></i></div>
+            <div class="sensor-val" id="dashAIState" style="font-size: 1.2rem; color: var(--accent-warning);">Sin Entrenar</div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-title">Resumen Dinámico de Aceleración (IMU)</div>
+            <canvas id="dashMotionChart" height="150"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-title">Estado del Hardware & Gamepad</div>
+            <div class="table-responsive">
+              <table>
+                <thead><tr><th>Componente</th><th>Interfaz</th><th>Estado / Valor</th></tr></thead>
+                <tbody>
+                  <tr><td>IdeaBoard (ESP32)</td><td>BLE NUS</td><td>Ver Dashboard Agro</td></tr>
+                  <tr><td>IMU 6-Ejes</td><td>I2C (0x6a)</td><td>Ver Dashboard Agro</td></tr>
+                  <tr><td>Temp & Humedad</td><td>I2C (0x44)</td><td>Ver Dashboard Agro</td></tr>
+                  <tr><td>Sensor Luz LTR-303</td><td>I2C (0x29)</td><td>Ver Dashboard Agro</td></tr>
+                  <tr><td>Botón A (held[0])</td><td>IdeaSense Lib</td><td id="dashBtnA">Suelto</td></tr>
+                  <tr><td>Botón B/C (held[1,2])</td><td>IdeaSense Lib</td><td id="dashBtnB">Suelto</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. EXPLORER -->
+      <div id="explorer" class="tab-content">
+        <div class="grid grid-3" style="margin-bottom: 20px;">
+          <div class="card">
+            <div class="card-title">Acelerómetro (g)</div>
+            <div>X: <span id="expAx" class="sensor-val" style="font-size:1.2rem;">0.00</span></div>
+            <div>Y: <span id="expAy" class="sensor-val" style="font-size:1.2rem;">0.00</span></div>
+            <div>Z: <span id="expAz" class="sensor-val" style="font-size:1.2rem;">0.00</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Giroscopio (dps)</div>
+            <div>X: <span id="expGx" class="sensor-val" style="font-size:1.2rem;">0.00</span></div>
+            <div>Y: <span id="expGy" class="sensor-val" style="font-size:1.2rem;">0.00</span></div>
+            <div>Z: <span id="expGz" class="sensor-val" style="font-size:1.2rem;">0.00</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Matriz LED 5x5 Interactiva (HT16K33)</div>
+            <div class="led-matrix-grid" id="ledMatrixDesigner"></div>
+            <div style="display:flex; gap:10px; margin-top:12px; justify-content:center;">
+              <button class="btn btn-outline" style="padding:4px 8px;" onclick="clearLEDMatrix()">Limpiar</button>
+              <button class="btn" style="padding:4px 8px;" onclick="sendLEDMatrixBLE()">Enviar a Placa</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Monitoreo Ambiental en Tiempo Real</div>
+          <canvas id="explorerEnvChart" height="100"></canvas>
+        </div>
+      </div>
+
+      <!-- 3. ARCADE SIMULADOR WEB (CARRERA DE CARRITOS) -->
+      <div id="games" class="tab-content">
+        <div class="grid grid-2" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-title">Simulador de Carrera 2D Arcade</div>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
+              Mantén presionado el <b>Botón A (held[0])</b> o el botón táctil para ir a la Izquierda y el <b>Botón B/C (held[1]/held[2])</b> para ir a la Derecha.
+            </p>
+            <button class="btn" onclick="initWebCarGame()"><i class="fa-solid fa-play"></i> Reiniciar Carrera</button>
+          </div>
+          
+          <div class="card">
+            <div class="card-title">Estado de Entradas del Gamepad BLE</div>
+            <div class="game-controls-bar">
+              <div class="game-btn-indicator" id="indBtnA"><i class="fa-solid fa-circle-left"></i> Botón A (Izq)</div>
+              <div class="game-btn-indicator" id="indBtnB">Botón B/C (Der) <i class="fa-solid fa-circle-right"></i></div>
+              <div style="font-weight:700; font-size:1.1rem;">Score: <span id="arcadeScore" style="color:var(--accent-cyan);">0</span> pts</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span id="gameTitleDisplay">Carrera 2D Arcade</span>
+            <button class="btn btn-outline btn-danger btn-sm" onclick="stopCurrentWebGame()"><i class="fa-solid fa-stop"></i> Detener Juego</button>
+          </div>
+          <div class="game-canvas-container">
+            <canvas id="arcadeCanvas" class="game-surface" width="450" height="380"></canvas>
+          </div>
+          <!-- Controles Táctiles en Pantalla para Móviles -->
+          <div class="mobile-touch-controls">
+            <button class="touch-btn" id="btnTouchLeft"><i class="fa-solid fa-arrow-left"></i> Izquierda (A)</button>
+            <button class="touch-btn" id="btnTouchRight">Derecha (B/C) <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. AI LAB -->
+      <div id="ailab" class="tab-content">
+        <div class="grid grid-2" style="margin-bottom: 20px;">
+          <div class="card">
+            <div class="card-title">1. Recopilación & Selección de Clase</div>
+            <div class="form-group">
+              <label>Clase de Movimiento / Evento</label>
+              <div style="display:flex; gap:8px;">
+                <select id="aiClassSelect" class="form-control" style="flex:1;">
+                  <option value="Reposo">Reposo</option>
+                  <option value="Inclinacion">Inclinación</option>
+                  <option value="Movimiento">Movimiento Continuo</option>
+                  <option value="Rotacion">Rotación</option>
+                </select>
+                <button class="btn btn-outline" onclick="promptAddCustomClass()"><i class="fa-solid fa-plus"></i> Nueva Clase</button>
+              </div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn" onclick="startAICapture()"><i class="fa-solid fa-record-vinyl"></i> Capturar (3s)</button>
+              <button class="btn btn-outline" onclick="trainAIModel()"><i class="fa-solid fa-gears"></i> Entrenar Modelo</button>
+              <button class="btn btn-outline btn-danger" onclick="resetAIDataset()"><i class="fa-solid fa-trash"></i> Vaciar Muestras</button>
+            </div>
+
+            <div style="margin-top:15px; font-size:0.85rem; color:var(--text-muted);" id="aiDatasetStats">
+              Muestras recolectadas: 0
+            </div>
+
+            <div class="table-responsive" style="margin-top:15px; max-height: 180px;">
+              <table id="aiSamplesTable">
+                <thead><tr><th>#</th><th>Clase</th><th>Vector Base</th><th>Acción</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">2. Gestión de Modelos & Exportación Python (.py)</div>
+            <div class="form-group">
+              <label>Nombre del Modelo</label>
+              <input type="text" id="aiModelName" class="form-control" value="modelo_ideasense_v1">
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
+              <button class="btn" onclick="saveCurrentAIModel()"><i class="fa-solid fa-floppy-disk"></i> Guardar Modelo</button>
+              <button class="btn btn-outline" onclick="createNewAIModel()"><i class="fa-solid fa-plus"></i> Crear Nuevo</button>
+              <button class="btn btn-outline" onclick="downloadPythonModel()"><i class="fa-solid fa-file-code"></i> Descargar .py</button>
+            </div>
+
+            <hr style="border-color:var(--border-color); margin:10px 0;">
+
+            <div class="card-title">Clasificación en Tiempo Real</div>
+            <div style="text-align:center; padding:10px;">
+              <div style="font-size:0.8rem; color:var(--text-muted);">Clase Predicha</div>
+              <div id="aiPredictedClass" style="font-size:1.8rem; font-weight:700; color:var(--accent-cyan); margin:4px 0;">--</div>
+              <div style="font-size:0.85rem;">Confianza: <span id="aiConfidence">0%</span></div>
+            </div>
+            <div id="aiExplainability" style="font-size:0.78rem; color:var(--text-muted);">
+              Cargue ejemplos y entrene para evaluar qué variables influyen en la clasificación.
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-title">Modelos Guardados</div>
+            <div class="table-responsive">
+              <table id="savedModelsTable">
+                <thead><tr><th>Nombre</th><th>Muestras</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Detección de Anomalías (Z-Score)</div>
+            <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+              <div>Puntuación Anormal: <span id="aiAnomalyScore" class="sensor-val" style="font-size:1.4rem;">0.00</span></div>
+              <div id="aiAnomalyStatus" class="badge" style="background:#1e293b;">Normal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. EXPERIMENTOS -->
+      <div id="experiments" class="tab-content">
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title">Diseño de Experimento Específico</div>
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label>Nombre del Experimento</label>
+              <input type="text" id="expName" class="form-control" placeholder="Ej: Lecturas Seleccionadas de Humedad y Luz">
+            </div>
+            <div class="form-group">
+              <label>Observaciones</label>
+              <input type="text" id="expNotes" class="form-control" placeholder="Ej: Prueba bajo sombra">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Seleccionar Sensores a Registrar:</label>
+            <div class="checkbox-group">
+              <label class="checkbox-item"><input type="checkbox" id="chkExpTemp" checked> Temperatura (°C)</label>
+              <label class="checkbox-item"><input type="checkbox" id="chkExpHum" checked> Humedad (%)</label>
+              <label class="checkbox-item"><input type="checkbox" id="chkExpLux" checked> Luz ambiental (cuentas ALS)</label>
+              <label class="checkbox-item"><input type="checkbox" id="chkExpAx" checked> Acelerómetro X,Y,Z</label>
+              <label class="checkbox-item"><input type="checkbox" id="chkExpGx" checked> Giroscopio X,Y,Z</label>
+            </div>
+          </div>
+
+          <button class="btn" onclick="toggleExperimentRecord()"><i class="fa-solid fa-play" id="expRecordIcon"></i> <span id="expRecordBtnText">Iniciar Grabación</span></button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Registro de Experimentos Guardados</div>
+          <div class="table-responsive">
+            <table id="experimentsTable">
+              <thead><tr><th>ID</th><th>Nombre</th><th>Sensores Medidos</th><th>Muestras</th><th>Fecha</th><th>Acciones</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" id="expViewerCard" style="margin-top:20px; display:none;">
+          <div class="card-title">
+            <span id="expViewerTitle">Resultados del Experimento</span>
+            <button class="btn btn-outline btn-sm" onclick="closeExpViewer()"><i class="fa-solid fa-xmark"></i> Cerrar</button>
+          </div>
+          <div style="margin-bottom:15px; font-size:0.85rem; color:var(--text-muted);" id="expViewerMeta"></div>
+          
+          <div style="margin-bottom:20px;">
+            <canvas id="expResultChart" height="130"></canvas>
+          </div>
+
+          <div class="table-responsive" style="max-height: 220px;">
+            <table id="expViewerTable">
+              <thead><tr id="expViewerTableHead"></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. VISUALIZACIÓN -->
+      <div id="visualization" class="tab-content">
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-title">Orientación 3D de IdeaSense</div>
+            <div class="cube-container">
+              <div class="cube" id="cube3D">
+                <div class="cube-face front">TOP</div>
+                <div class="cube-face back">BOT</div>
+                <div class="cube-face right">R</div>
+                <div class="cube-face left">L</div>
+                <div class="cube-face top">Y+</div>
+                <div class="cube-face bottom">Y-</div>
+              </div>
+            </div>
+            <div style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:10px;">
+              Roll: <span id="visRoll">0</span>° | Pitch: <span id="visPitch">0</span>°
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Vector de Movimiento Total</div>
+            <canvas id="visMagChart" height="140"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. HISTORIAL -->
+      <div id="history" class="tab-content">
+        <div class="card">
+          <div class="card-title">
+            <span>Historial de Eventos</span>
+            <button class="btn btn-outline" style="padding:4px 8px;" onclick="exportHistoryCSV()"><i class="fa-solid fa-download"></i> Exportar CSV</button>
+          </div>
+          <div class="table-responsive">
+            <table id="historyTable">
+              <thead><tr><th>Timestamp</th><th>Tipo</th><th>Detalle</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. CONFIGURACIÓN -->
+      <div id="settings" class="tab-content">
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-title">Parámetros BLE & Telemetría</div>
+            <div class="form-group">
+              <label>Frecuencia de Muestreo (ms)</label>
+              <input type="number" id="cfgInterval" class="form-control" value="40">
+            </div>
+            <button class="btn" onclick="saveSettings()">Guardar Configuración</button>
+          </div>
+          <div class="card">
+            <div class="card-title">Consola de Diagnóstico BLE</div>
+            <div class="console-box" id="bleConsole">> Esperando conexión...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="ag-footer">
+      <span><b>IdeaSense Explorer AI</b> · Universidad CENFOTEC</span>
+      <span>Mediciones del aire alrededor de IdeaBoard: no miden humedad del suelo ni diagnostican la salud de una planta.</span>
+      <a href="https://github.com/Universidad-Cenfotec/IdeaSense" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> Código en GitHub</a>
+    </footer>
+  </main>
+
+  <script>
+    const state = {
+      connected: false,
+      demoMode: false,
+      demoInterval: null,
+      bleDevice: null,
+      rxCharacteristic: null,
+      txCharacteristic: null,
+      telemetry: { t:0, h:0, l:0, ax:0, ay:0, az:0, gx:0, gy:0, gz:0, ba:0, bb:0 },
+      ledMatrix: Array(25).fill(0),
+      ai: { dataset: [], model: null, isCapturing: false, captureBuffer: [], savedModels: [] },
+      experiment: { recording: false, data: [], list: [], activeSensors: [] },
+      history: []
+    };
+
+    let currentGameLoop = null;
+    let gameType = null;
+    let gameScore = 0;
+    
+    // Controles de teclado y táctiles
+    const keyState = { left: false, right: false };
+    
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') keyState.left = true;
+      if (e.key === 'ArrowRight') keyState.right = true;
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft') keyState.left = false;
+      if (e.key === 'ArrowRight') keyState.right = false;
+    });
+
+    // Asignación de eventos táctiles para móviles
+    function setupTouchControls() {
+      const btnLeft = document.getElementById('btnTouchLeft');
+      const btnRight = document.getElementById('btnTouchRight');
+      
+      if (btnLeft && btnRight) {
+        const startLeft = (e) => { e.preventDefault(); keyState.left = true; btnLeft.classList.add('active'); };
+        const endLeft = (e) => { e.preventDefault(); keyState.left = false; btnLeft.classList.remove('active'); };
+        
+        const startRight = (e) => { e.preventDefault(); keyState.right = true; btnRight.classList.add('active'); };
+        const endRight = (e) => { e.preventDefault(); keyState.right = false; btnRight.classList.remove('active'); };
+
+        btnLeft.addEventListener('touchstart', startLeft);
+        btnLeft.addEventListener('touchend', endLeft);
+        btnLeft.addEventListener('mousedown', startLeft);
+        btnLeft.addEventListener('mouseup', endLeft);
+
+        btnRight.addEventListener('touchstart', startRight);
+        btnRight.addEventListener('touchend', endRight);
+        btnRight.addEventListener('mousedown', startRight);
+        btnRight.addEventListener('mouseup', endRight);
+      }
+    }
+
+    function toggleSidebar() {
+      const aside = document.getElementById('mainSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      aside.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-menu .nav-item').forEach(el => el.classList.remove('active'));
+      
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) targetContent.classList.add('active');
+      
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+      }
+
+      // Cerrar menú lateral en pantallas móviles tras selección
+      if (window.innerWidth <= 860) {
+        const aside = document.getElementById('mainSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (aside) aside.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
+      }
+    }
+
+    const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    const UART_RX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+    const UART_TX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+
+    let bleBuffer = "";
+    let chartDashMotion, chartExpEnv, chartVisMag;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initCharts();
+      initLEDMatrixGrid();
+      initWebCarGame();
+      setupTouchControls();
+      logHistory("SISTEMA", "Plataforma lista.");
+    });
+
+    function resetUIStateOnConnect() {
+      document.getElementById('bleConsole').innerHTML = '> Conexión establecida. Diagnóstico reiniciado.';
+      bleBuffer = "";
+      state.history = [];
+      logHistory("BLE", "Conexión activa.");
+
+      [chartDashMotion, chartExpEnv, chartVisMag].forEach(c => {
+        if (c) {
+          c.data.labels = [];
+          c.data.datasets.forEach(ds => ds.data = []);
+          c.update();
+        }
+      });
+    }
+
+    function logConsole(msg) {
+      const c = document.getElementById('bleConsole');
+      if (c) {
+        c.innerHTML += `<br>> ${msg}`;
+        c.scrollTop = c.scrollHeight;
+      }
+    }
+
+    function logHistory(type, detail) {
+      const ts = new Date().toLocaleTimeString();
+      state.history.unshift({ ts, type, detail });
+      const tbody = document.querySelector('#historyTable tbody');
+      if (tbody) {
+        tbody.innerHTML = state.history.slice(0, 50).map(h => 
+          `<tr><td>${h.ts}</td><td><span class="badge">${h.type}</span></td><td>${h.detail}</td></tr>`
+        ).join('');
+      }
+    }
+
+    function initLEDMatrixGrid() {
+      const grid = document.getElementById('ledMatrixDesigner');
+      if (!grid) return;
+      grid.innerHTML = '';
+      for (let i = 0; i < 25; i++) {
+        const pixel = document.createElement('div');
+        pixel.className = 'led-pixel';
+        pixel.dataset.index = i;
+        pixel.onclick = () => {
+          state.ledMatrix[i] = state.ledMatrix[i] ? 0 : 1;
+          pixel.classList.toggle('active', state.ledMatrix[i] === 1);
+        };
+        grid.appendChild(pixel);
+      }
+    }
+
+    function clearLEDMatrix() {
+      state.ledMatrix.fill(0);
+      document.querySelectorAll('.led-pixel').forEach(el => el.classList.remove('active'));
+      sendLEDMatrixBLE();
+    }
+
+    function sendLEDMatrixBLE() {
+      const payload = JSON.stringify({ cmd: "matrix", pixels: state.ledMatrix });
+      sendBLECommand(payload);
+    }
+
+    function initCharts() {
+      const ctxDash = document.getElementById('dashMotionChart')?.getContext('2d');
+      if (ctxDash) {
+        chartDashMotion = new Chart(ctxDash, {
+          type: 'line',
+          data: { labels: [], datasets: [
+            { label: 'Ax', borderColor: '#ef4444', data: [], tension: 0.3, pointRadius:0 },
+            { label: 'Ay', borderColor: '#10b981', data: [], tension: 0.3, pointRadius:0 },
+            { label: 'Az', borderColor: '#3b82f6', data: [], tension: 0.3, pointRadius:0 }
+          ]},
+          options: { responsive: true, maintainAspectRatio: true, animation: false, scales: { x: { display: false } } }
+        });
+      }
+
+      const ctxEnv = document.getElementById('explorerEnvChart')?.getContext('2d');
+      if (ctxEnv) {
+        chartExpEnv = new Chart(ctxEnv, {
+          type: 'line',
+          data: { labels: [], datasets: [
+            { label: 'Temp (°C)', borderColor: '#f59e0b', data: [] },
+            { label: 'Humedad (%)', borderColor: '#06b6d4', data: [] }
+          ]},
+          options: { responsive: true, maintainAspectRatio: true, animation: false, scales: { x: { display: false } } }
+        });
+      }
+
+      const ctxVis = document.getElementById('visMagChart')?.getContext('2d');
+      if (ctxVis) {
+        chartVisMag = new Chart(ctxVis, {
+          type: 'line',
+          data: { labels: [], datasets: [
+            { label: 'Magnitud Movimiento', borderColor: '#7c3aed', backgroundColor: 'rgba(124, 58, 237, 0.2)', fill: true, data: [] }
+          ]},
+          options: { responsive: true, maintainAspectRatio: true, animation: false, scales: { x: { display: false } } }
+        });
+      }
+    }
+
+    async function connectBLE() {
+      if (!navigator.bluetooth) {
+        alert("Web Bluetooth no está soportado en este navegador.");
+        return;
+      }
+
+      try {
+        logConsole("Escaneando dispositivos BLE...");
+        state.bleDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: 'IdeaBoard' }, { namePrefix: 'CIRCUITPY' }],
+          optionalServices: [UART_SERVICE_UUID]
+        });
+
+        logConsole(`Conectando con ${state.bleDevice.name}...`);
+        const server = await state.bleDevice.gatt.connect();
+        const service = await server.getPrimaryService(UART_SERVICE_UUID);
+
+        state.rxCharacteristic = await service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID);
+        state.txCharacteristic = await service.getCharacteristic(UART_TX_CHARACTERISTIC_UUID);
+
+        await state.rxCharacteristic.startNotifications();
+        state.rxCharacteristic.addEventListener('characteristicvaluechanged', handleBLENotification);
+
+        state.connected = true;
+        updateConnectionUI(true);
+        resetUIStateOnConnect();
+      } catch (err) {
+        logConsole(`Error BLE: ${err.message}`);
+        updateConnectionUI(false);
+      }
+    }
+
+    function handleBLENotification(event) {
+      const decoder = new TextDecoder('utf-8');
+      const chunk = decoder.decode(event.target.value, { stream: true });
+      bleBuffer += chunk;
+
+      const lines = bleBuffer.split('\n');
+      bleBuffer = lines.pop();
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.length > 0) {
+          try {
+            const data = JSON.parse(trimmed);
+            processIncomingTelemetry(data);
+          } catch (e) {
+            console.warn("[BLE PARSE WARN] Trama incompleta:", trimmed);
+          }
+        }
+      }
+    }
+
+    function sendBLECommand(cmdStr) {
+      if (!state.connected || !state.txCharacteristic) return;
+      const encoder = new TextEncoder();
+      state.txCharacteristic.writeValue(encoder.encode(cmdStr + "\n"));
+    }
+
+    function processIncomingTelemetry(data) {
+      state.telemetry = data;
+      aiFeed(data);
+
+      const dashTemp = document.getElementById('dashTemp');
+      const dashHum = document.getElementById('dashHum');
+      const dashLux = document.getElementById('dashLux');
+
+      if (dashTemp) dashTemp.innerHTML = `${Number(data.t).toFixed(1)} <span class="sensor-unit">°C</span>`;
+      if (dashHum) dashHum.innerHTML = `${Number(data.h).toFixed(1)} <span class="sensor-unit">%</span>`;
+      if (dashLux) dashLux.innerHTML = `${Math.round(data.l)} <span class="sensor-unit">cuentas ALS</span>`;
+      
+      const isAPressed = (data.ba == 1 || data.ba === true);
+      const isBPressed = (data.bb == 1 || data.bb === true);
+
+      const elA = document.getElementById('dashBtnA');
+      const elB = document.getElementById('dashBtnB');
+      if (elA) elA.innerText = isAPressed ? "¡PRESIONADO!" : "Suelto";
+      if (elB) elB.innerText = isBPressed ? "¡PRESIONADO!" : "Suelto";
+      if (elA) elA.style.color = isAPressed ? "var(--accent-green)" : "var(--text-main)";
+      if (elB) elB.style.color = isBPressed ? "var(--accent-green)" : "var(--text-main)";
+
+      const indA = document.getElementById('indBtnA');
+      const indB = document.getElementById('indBtnB');
+      if (indA) indA.classList.toggle('active', isAPressed || keyState.left);
+      if (indB) indB.classList.toggle('active', isBPressed || keyState.right);
+
+      const expAx = document.getElementById('expAx');
+      const expAy = document.getElementById('expAy');
+      const expAz = document.getElementById('expAz');
+      const expGx = document.getElementById('expGx');
+      const expGy = document.getElementById('expGy');
+      const expGz = document.getElementById('expGz');
+
+      if (expAx) expAx.innerText = Number(data.ax).toFixed(3);
+      if (expAy) expAy.innerText = Number(data.ay).toFixed(3);
+      if (expAz) expAz.innerText = Number(data.az).toFixed(3);
+      if (expGx) expGx.innerText = Number(data.gx).toFixed(1);
+      if (expGy) expGy.innerText = Number(data.gy).toFixed(1);
+      if (expGz) expGz.innerText = Number(data.gz).toFixed(1);
+
+      if (chartDashMotion) pushChartData(chartDashMotion, [data.ax, data.ay, data.az]);
+      if (chartExpEnv) pushChartData(chartExpEnv, [data.t, data.h]);
+      
+      const mag = Math.sqrt(data.ax**2 + data.ay**2 + data.az**2);
+      if (chartVisMag) pushChartData(chartVisMag, [mag]);
+
+      const roll = Math.atan2(data.ay, data.az) * (180 / Math.PI);
+      const pitch = Math.atan2(-data.ax, Math.sqrt(data.ay**2 + data.az**2)) * (180 / Math.PI);
+      const cube3D = document.getElementById('cube3D');
+      if (cube3D) cube3D.style.transform = `rotateX(${pitch}deg) rotateY(${roll}deg)`;
+      
+      const visRoll = document.getElementById('visRoll');
+      const visPitch = document.getElementById('visPitch');
+      if (visRoll) visRoll.innerText = roll.toFixed(0);
+      if (visPitch) visPitch.innerText = pitch.toFixed(0);
+    }
+
+    function pushChartData(chart, values) {
+      if (!chart) return;
+      if (chart.data.labels.length > 20) {
+        chart.data.labels.shift();
+        chart.data.datasets.forEach(ds => ds.data.shift());
+      }
+      chart.data.labels.push('');
+      values.forEach((v, idx) => {
+        if (chart.data.datasets[idx]) chart.data.datasets[idx].data.push(v);
+      });
+      chart.update();
+    }
+
+    function updateConnectionUI(isConnected) {
+      const badge = document.getElementById('bleBadge');
+      const text = document.getElementById('bleStatusText');
+      if (isConnected) {
+        badge.classList.add('connected');
+        text.innerText = "Conectado BLE";
+      } else {
+        badge.classList.remove('connected');
+        text.innerText = "Desconectado";
+      }
+    }
+
+    function toggleDemoMode() {
+      state.demoMode = !state.demoMode;
+      const b = document.getElementById('modeBadge');
+      const t = document.getElementById('modeStatusText');
+      if (state.demoMode) {
+        b.classList.add('demo');
+        t.innerText = "Modo DEMO";
+        state.demoInterval = setInterval(simulateTelemetry, 40);
+        logHistory("SISTEMA", "Modo DEMO activado.");
+      } else {
+        b.classList.remove('demo');
+        t.innerText = "Modo Real";
+        clearInterval(state.demoInterval);
+        logHistory("SISTEMA", "Modo DEMO desactivado.");
+      }
+    }
+
+    function simulateTelemetry() {
+      const t = 22.5;
+      const h = 55.0;
+      const l = 350;
+      const ax = (Math.random() - 0.5) * 0.2;
+      const ay = (Math.random() - 0.5) * 0.2;
+      const az = 0.98;
+
+      processIncomingTelemetry({ t, h, l, ax, ay, az, gx:0, gy:0, gz:0, ba: state.telemetry.ba, bb: state.telemetry.bb });
+    }
+
+    /* MOTOR DE SIMULACIÓN VISUAL EN CANVAS 2D (CARRERA DE CARRITOS) */
+    function stopCurrentWebGame() {
+      if (currentGameLoop) {
+        cancelAnimationFrame(currentGameLoop);
+        currentGameLoop = null;
+      }
+      gameType = null;
+    }
+
+    function initWebCarGame() {
+      stopCurrentWebGame();
+      gameType = 'car';
+      gameScore = 0;
+      const titleDisplay = document.getElementById('gameTitleDisplay');
+      if (titleDisplay) titleDisplay.innerText = "Carrera 2D Arcade (Control BLE y Táctil)";
+
+      const canvas = document.getElementById('arcadeCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      let playerX = canvas.width / 2 - 18;
+      const playerY = canvas.height - 70;
+      const playerWidth = 36;
+      const playerHeight = 55;
+      
+      let roadOffset = 0;
+      let obstacles = [];
+      let lastObstacleTime = 0;
+
+      function renderCar(x, y, color, isPlayer=false) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(x, y, playerWidth, playerHeight, 8);
+        } else {
+          ctx.rect(x, y, playerWidth, playerHeight);
+        }
+        ctx.fill();
+
+        ctx.fillStyle = isPlayer ? '#06b6d4' : '#ef4444';
+        ctx.fillRect(x + 5, y + 15, playerWidth - 10, 18);
+
+        ctx.fillStyle = '#000';
+        ctx.fillRect(x - 3, y + 6, 4, 12);
+        ctx.fillRect(x + playerWidth - 1, y + 6, 4, 12);
+        ctx.fillRect(x - 3, y + playerHeight - 18, 4, 12);
+        ctx.fillRect(x + playerWidth - 1, y + playerHeight - 18, 4, 12);
+      }
+
+      function loop(timestamp) {
+        const isLeft = (state.telemetry.ba == 1 || state.telemetry.ba === true || keyState.left);
+        const isRight = (state.telemetry.bb == 1 || state.telemetry.bb === true || keyState.right);
+
+        if (isLeft && playerX > 75) playerX -= 6.5;
+        if (isRight && playerX < canvas.width - 75 - playerWidth) playerX += 6.5;
+
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const roadX = 60;
+        const roadW = canvas.width - 120;
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(roadX, 0, roadW, canvas.height);
+
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(roadX, 0, 6, canvas.height);
+        ctx.fillRect(roadX + roadW - 6, 0, 6, canvas.height);
+
+        roadOffset = (roadOffset + 6) % 40;
+        ctx.fillStyle = '#ffffff';
+        for (let y = -40 + roadOffset; y < canvas.height; y += 40) {
+          ctx.fillRect(canvas.width / 2 - 3, y, 6, 20);
+        }
+
+        if (timestamp - lastObstacleTime > 850) {
+          const lanes = [roadX + 20, canvas.width / 2 - playerWidth / 2, roadX + roadW - 20 - playerWidth];
+          const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
+          obstacles.push({ x: randomLane, y: -60, color: ['#f59e0b', '#ec4899', '#10b981'][Math.floor(Math.random()*3)] });
+          lastObstacleTime = timestamp;
+        }
+
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          const obs = obstacles[i];
+          obs.y += 4.8;
+          renderCar(obs.x, obs.y, obs.color, false);
+
+          if (
+            playerX < obs.x + playerWidth &&
+            playerX + playerWidth > obs.x &&
+            playerY < obs.y + playerHeight &&
+            playerY + playerHeight > obs.y
+          ) {
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.85)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 24px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('¡COLISIÓN! GAME OVER', canvas.width / 2, canvas.height / 2);
+            logHistory("JUEGOS WEB", `Car Crash Score: ${gameScore}`);
+            return;
+          }
+
+          if (obs.y > canvas.height) {
+            obstacles.splice(i, 1);
+            gameScore += 10;
+            const scoreEl = document.getElementById('arcadeScore');
+            if (scoreEl) scoreEl.innerText = `${gameScore}`;
+          }
+        }
+
+        renderCar(playerX, playerY, '#7c3aed', true);
+        currentGameLoop = requestAnimationFrame(loop);
+      }
+
+      currentGameLoop = requestAnimationFrame(loop);
+    }
+
+    /* RESTO DE FUNCIONALIDADES DE LA PLATAFORMA */
+    function promptAddCustomClass() {
+      const className = prompt("Ingrese el nombre de la nueva clase:");
+      if (className && className.trim() !== "") {
+        const cleanName = className.trim();
+        const select = document.getElementById('aiClassSelect');
+        let exists = false;
+        for (let opt of select.options) {
+          if (opt.value.toLowerCase() === cleanName.toLowerCase()) {
+            exists = true; select.value = opt.value; break;
+          }
+        }
+        if (!exists) {
+          const newOpt = document.createElement('option');
+          newOpt.value = cleanName; newOpt.innerText = cleanName;
+          select.appendChild(newOpt); select.value = cleanName;
+        }
+        logHistory("AI LAB", `Clase agregada: '${cleanName}'`);
+      }
+    }
+
+    /* ===== AI LAB: captura, entrenamiento y clasificación k-NN (versión funcional) =====
+       Captura 3 s de IMU -> vector de 12 características (media y desvío de ax..gz) -> k-NN (k=3)
+       sobre vectores normalizados (z-score). Las lecturas con IMU simulado (sim&2) no se usan. */
+    const AI_WIN = 75, AI_K = 3;
+    const FEAT_NAMES = ['μ ax','μ ay','μ az','μ gx','μ gy','μ gz','σ ax','σ ay','σ az','σ gx','σ gy','σ gz'];
+
+    function aiFeed(data) {
+      if (!data || (data.sim & 2)) return;
+      const row = [data.ax, data.ay, data.az, data.gx, data.gy, data.gz].map(Number);
+      if (row.some(v => !Number.isFinite(v))) return;
+      if (state.ai.isCapturing) state.ai.captureBuffer.push(row);
+      const w = state.ai.window || (state.ai.window = []);
+      w.push(row); if (w.length > AI_WIN) w.shift();
+      const now = Date.now();
+      if (state.ai.model && w.length >= AI_WIN * 0.66 && now - (state.ai.lastEval || 0) > 500) {
+        state.ai.lastEval = now; aiClassifyLive(extractFeatures(w));
+      }
+    }
+
+    function aiBuildModel(ds) {
+      const n = ds.length, mean = Array(12).fill(0), std = Array(12).fill(0);
+      ds.forEach(s => s.vector.forEach((v, i) => mean[i] += v / n));
+      ds.forEach(s => s.vector.forEach((v, i) => std[i] += (v - mean[i]) ** 2 / n));
+      for (let i = 0; i < 12; i++) std[i] = Math.max(Math.sqrt(std[i]), 0.02);
+      return { mean, std, k: Math.min(AI_K, n),
+               samples: ds.map(s => ({ label: s.label, z: s.vector.map((v, i) => (v - mean[i]) / std[i]) })) };
+    }
+
+    function aiKnn(model, z, skip) {
+      const near = model.samples
+        .map((s, idx) => ({ label: s.label, idx, d: Math.sqrt(s.z.reduce((a, v, i) => a + (v - z[i]) ** 2, 0)) }))
+        .filter(x => x.idx !== skip).sort((a, b) => a.d - b.d).slice(0, model.k);
+      const votes = {}; let tot = 0;
+      near.forEach(x => { const w = 1 / (x.d + 0.1); votes[x.label] = (votes[x.label] || 0) + w; tot += w; });
+      const best = Object.entries(votes).sort((a, b) => b[1] - a[1])[0];
+      return { label: best[0], conf: best[1] / tot * 100 };
+    }
+
+    function aiSet(id, text, color) {
+      const el = document.getElementById(id);
+      if (el) { el.innerText = text; if (color) el.style.color = color; }
+    }
+
+    function aiResetDisplay() {
+      aiSet('dashAIState', 'Sin Entrenar', 'var(--accent-warning)');
+      aiSet('aiPredictedClass', '--'); aiSet('aiConfidence', '0%'); aiSet('aiAnomalyScore', '0.00');
+      const st = document.getElementById('aiAnomalyStatus');
+      if (st) { st.innerText = 'Normal'; st.style.background = '#1e293b'; }
+      aiSet('aiExplainability', 'Cargue ejemplos y entrene para evaluar qué variables influyen en la clasificación.');
+    }
+
+    function aiClassifyLive(vec) {
+      const m = state.ai.model; if (!m) return;
+      const z = vec.map((v, i) => (v - m.mean[i]) / m.std[i]);
+      const r = aiKnn(m, z, -1);
+      const score = z.reduce((a, v) => a + Math.abs(v), 0) / z.length;
+      aiSet('aiPredictedClass', r.label); aiSet('aiConfidence', r.conf.toFixed(0) + '%');
+      aiSet('aiAnomalyScore', score.toFixed(2));
+      const st = document.getElementById('aiAnomalyStatus');
+      if (st) { const an = score > 2.5; st.innerText = an ? 'Anomalía' : 'Normal'; st.style.background = an ? '#7f1d1d' : '#1e293b'; }
+    }
+
+    function startAICapture() {
+      if (state.ai.isCapturing) return;
+      if (!state.connected && !state.demoMode) { alert("Conecte la IdeaBoard primero (botón «Conectar IdeaBoard»)."); return; }
+      const selectedClass = document.getElementById('aiClassSelect').value;
+      state.ai.isCapturing = true;
+      state.ai.captureBuffer = [];
+      logConsole(`Capturando datos para '${selectedClass}' por 3s...`);
+      aiSet('aiDatasetStats', `Capturando '${selectedClass}'… mueva la placa durante 3 s`);
+
+      setTimeout(() => {
+        state.ai.isCapturing = false;
+        const n = state.ai.captureBuffer.length;
+        if (n < 25) {
+          updateAISamplesUI();
+          alert(`No se recibieron suficientes lecturas del IMU (${n}). Verifique la conexión; si la placa informa el IMU como simulado, no se pueden capturar muestras.`);
+          return;
+        }
+        const vector = extractFeatures(state.ai.captureBuffer);
+        state.ai.dataset.push({ id: Date.now(), label: selectedClass, vector });
+        updateAISamplesUI();
+        logHistory("AI LAB", `Muestra capturada para: ${selectedClass} (${n} lecturas)`);
+      }, 3000);
+    }
+
+    function extractFeatures(buffer) {
+      if (!buffer.length) return Array(12).fill(0);
+      const means = Array(6).fill(0);
+      buffer.forEach(row => row.forEach((v, i) => means[i] += v));
+      means.forEach((v, i) => means[i] /= buffer.length);
+      const stds = Array(6).fill(0);
+      buffer.forEach(row => row.forEach((v, i) => stds[i] += Math.pow(v - means[i], 2)));
+      stds.forEach((v, i) => stds[i] = Math.sqrt(stds[i] / buffer.length));
+      return [...means, ...stds].map(v => Number(v.toFixed(3)));
+    }
+
+    function updateAISamplesUI() {
+      if (state.ai.model) { state.ai.model = null; aiResetDisplay(); }
+      const stats = document.getElementById('aiDatasetStats');
+      if (stats) stats.innerText = `Muestras recolectadas: ${state.ai.dataset.length}`;
+      const tbody = document.querySelector('#aiSamplesTable tbody');
+      if (tbody) {
+        tbody.innerHTML = state.ai.dataset.map((item, idx) => `
+          <tr>
+            <td>${idx + 1}</td>
+            <td><span class="badge">${item.label}</span></td>
+            <td style="font-family:'JetBrains Mono'; font-size:0.75rem;">[${item.vector.slice(0, 3).join(', ')}...]</td>
+            <td><button class="btn btn-outline btn-danger btn-sm" onclick="deleteAISample(${item.id})"><i class="fa-solid fa-trash"></i></button></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function deleteAISample(id) {
+      state.ai.dataset = state.ai.dataset.filter(item => item.id !== id);
+      updateAISamplesUI();
+    }
+
+    function resetAIDataset() {
+      if (confirm("¿Desea eliminar todas las muestras recopiladas?")) {
+        state.ai.dataset = [];
+        updateAISamplesUI();
+      }
+    }
+
+    function trainAIModel() {
+      const ds = state.ai.dataset, counts = {};
+      ds.forEach(s => counts[s.label] = (counts[s.label] || 0) + 1);
+      const labels = Object.keys(counts);
+      if (labels.length < 2) { alert("Se necesitan al menos 2 clases distintas (por ejemplo Reposo y Movimiento)."); return; }
+      const few = labels.filter(l => counts[l] < 2);
+      if (few.length) { alert("Capture al menos 2 muestras por clase. Faltan en: " + few.join(', ')); return; }
+      const model = aiBuildModel(ds);
+      let ok = 0;
+      ds.forEach((s, i) => { if (aiKnn(model, model.samples[i].z, i).label === s.label) ok++; });
+      model.acc = Math.round(ok / ds.length * 100);
+      state.ai.model = model;
+      const top = FEAT_NAMES.map((name, i) => {
+        const cm = labels.map(l => { const z = model.samples.filter(s => s.label === l); return z.reduce((a, s) => a + s.z[i], 0) / z.length; });
+        const mu = cm.reduce((a, b) => a + b, 0) / cm.length;
+        const between = cm.reduce((a, c) => a + (c - mu) ** 2, 0) / cm.length;
+        const within = model.samples.reduce((a, s) => a + (s.z[i] - cm[labels.indexOf(s.label)]) ** 2, 0) / model.samples.length;
+        return { name, r: between / (within + 0.01) };
+      }).sort((a, b) => b.r - a.r).slice(0, 3).map(x => x.name);
+      aiSet('dashAIState', `Entrenado (k-NN, ${model.acc}%)`, 'var(--accent-green)');
+      aiSet('aiExplainability', `Variables que más separan las clases: ${top.join(', ')}. Precisión leave-one-out: ${model.acc}% (${ds.length} muestras, ${labels.length} clases).`);
+      alert(`¡Modelo k-NN entrenado! ${ds.length} muestras, ${labels.length} clases. Precisión leave-one-out: ${model.acc}%.\nAhora mueva la placa: la clasificación en vivo aparece en este panel.`);
+    }
+
+    function createNewAIModel() {
+      state.ai.dataset = [];
+      updateAISamplesUI();
+    }
+
+    function saveCurrentAIModel() {
+      if (!state.ai.dataset.length) return;
+      const modelNameInput = document.getElementById('aiModelName');
+      const modelName = (modelNameInput && modelNameInput.value) ? modelNameInput.value : "modelo_ideasense";
+      state.ai.savedModels.push({ id: Date.now(), name: modelName, count: state.ai.dataset.length, date: new Date().toLocaleTimeString(), dataset: JSON.parse(JSON.stringify(state.ai.dataset)) });
+      renderSavedModelsTable();
+    }
+
+    function renderSavedModelsTable() {
+      const tbody = document.querySelector('#savedModelsTable tbody');
+      if (tbody) {
+        tbody.innerHTML = state.ai.savedModels.map(m => `
+          <tr>
+            <td>${m.name}</td>
+            <td>${m.count}</td>
+            <td>${m.date}</td>
+            <td><button class="btn btn-outline btn-sm" onclick="loadSavedAIModel(${m.id})">Cargar</button></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function loadSavedAIModel(id) {
+      const found = state.ai.savedModels.find(m => m.id === id);
+      if (found) {
+        state.ai.dataset = JSON.parse(JSON.stringify(found.dataset));
+        updateAISamplesUI();
+      }
+    }
+
+    function downloadPythonModel() {
+      if (!state.ai.dataset.length) { alert("No hay muestras. Capture y entrene primero."); return; }
+      const m = aiBuildModel(state.ai.dataset), r4 = a => a.map(v => Number(v.toFixed(4)));
+      const data = state.ai.dataset.map(d => ({ label: d.label, vector: d.vector }));
+      const py = [
+        "# Modelo k-NN generado por IdeaSense Explorer AI (acelerómetro + giroscopio)",
+        "import math",
+        "",
+        `K = ${m.k}`,
+        `MEAN = ${JSON.stringify(r4(m.mean))}`,
+        `STD = ${JSON.stringify(r4(m.std))}`,
+        `DATASET = ${JSON.stringify(data, null, 4)}`,
+        "",
+        "def extract_features(rows):",
+        "    # rows: lista de (ax, ay, az, gx, gy, gz) -> [6 medias + 6 desvios]",
+        "    n = len(rows)",
+        "    means = [sum(r[i] for r in rows) / n for i in range(6)]",
+        "    stds = [math.sqrt(sum((r[i] - means[i]) ** 2 for r in rows) / n) for i in range(6)]",
+        "    return means + stds",
+        "",
+        "def classify(vec):",
+        "    z = [(v - MEAN[i]) / STD[i] for i, v in enumerate(vec)]",
+        "    dist = []",
+        "    for s in DATASET:",
+        "        zs = [(v - MEAN[i]) / STD[i] for i, v in enumerate(s['vector'])]",
+        "        dist.append((math.sqrt(sum((a - b) ** 2 for a, b in zip(z, zs))), s['label']))",
+        "    dist.sort()",
+        "    votes = {}",
+        "    for d, lab in dist[:K]:",
+        "        votes[lab] = votes.get(lab, 0) + 1 / (d + 0.1)",
+        "    best = max(votes, key=votes.get)",
+        "    return best, 100 * votes[best] / sum(votes.values())",
+        ""
+      ].join('\n');
+      downloadCSV(py, (document.getElementById('aiModelName')?.value || 'modelo') + '.py');
+    }
+
+    function toggleExperimentRecord() {
+      state.experiment.recording = !state.experiment.recording;
+      const btnText = document.getElementById('expRecordBtnText');
+      if (state.experiment.recording) {
+        state.experiment.data = [];
+        state.experiment.activeSensors = ['temp', 'hum', 'lux', 'accel', 'gyro'];
+        if (btnText) btnText.innerText = "Detener y Guardar";
+      } else {
+        if (btnText) btnText.innerText = "Iniciar Grabación";
+        const exp = { id: Date.now(), name: "Experimento", count: state.experiment.data.length, date: new Date().toLocaleTimeString(), data: [...state.experiment.data] };
+        state.experiment.list.push(exp);
+        renderExperimentsTable();
+      }
+    }
+
+    function renderExperimentsTable() {
+      const tbody = document.querySelector('#experimentsTable tbody');
+      if (tbody) {
+        tbody.innerHTML = state.experiment.list.map(e => `
+          <tr>
+            <td>${e.id}</td>
+            <td>${e.name}</td>
+            <td>TODOS</td>
+            <td>${e.count}</td>
+            <td>${e.date}</td>
+            <td><button class="btn btn-outline btn-sm" onclick="exportExperimentCSV(${e.id})">CSV</button></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function exportExperimentCSV(id) {
+      const exp = state.experiment.list.find(e => e.id === id);
+      if (!exp || !exp.data.length) return;
+      const headers = Object.keys(exp.data[0]).join(',');
+      let csv = headers + "\n" + exp.data.map(d => Object.values(d).join(',')).join('\n');
+      downloadCSV(csv, `experimento_${id}.csv`);
+    }
+
+    function exportHistoryCSV() {
+      let csv = "timestamp,tipo,detalle\n" + state.history.map(h => `"${h.ts}","${h.type}","${h.detail}"`).join('\n');
+      downloadCSV(csv, `historial.csv`);
+    }
+
+    function downloadCSV(content, filename) {
+      const blob = new Blob([content], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url; link.download = filename; link.click();
+    }
+
+    function saveSettings() {
+      const intervalInput = document.getElementById('cfgInterval');
+      const interval = intervalInput ? intervalInput.value : 40;
+      sendBLECommand(JSON.stringify({ cmd: "config", interval: parseInt(interval) }));
+    }
+  </script>
+  <script>
+/* ===== AGRO EDITION: lógica ===== */
+/* IdeaSense Explorer AI – Agro Edition (capa sobre index.html; no modifica BLE ni firmware salvo el campo "sim"). Ver CAMBIOS_AGRO.md */
+(function () {
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ld = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
+const sv = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const V = {
+  t: { n: 'Temperatura', u: '°C', d: 1, i: 'fa-temperature-half', e: 0.3 },
+  h: { n: 'Humedad relativa del aire', u: '%', d: 1, i: 'fa-droplet', e: 1 },
+  l: { n: 'Luz ambiental (ALS)', u: 'cuentas', d: 0, i: 'fa-sun', e: 200 }
+};
+const K = Object.keys(V);
+const A = { cfg: ld('agroCfg', { t: [18, 30], h: [40, 80], l: [0, 30000] }), buf: [], cur: null, seen: 0, lastUi: 0, lastS: 0,
+            sim: 0, hasSim: false, cmp: {}, rec: null, exps: ld('agroExps', []), alerts: [], st: {} };
+const SL = { ok: 'En rango', low: 'Bajo el rango', high: 'Sobre el rango' };
+const fmt = (k, v) => Number.isFinite(+v) ? (+v).toFixed(V[k].d) : '--';
+const stat = (k, v) => v < A.cfg[k][0] ? 'low' : v > A.cfg[k][1] ? 'high' : 'ok';
+const src = () => (typeof state !== 'undefined' && state.demoMode) ? 'DEMO' : !A.hasSim ? 'REAL_NO_VERIF' : (A.sim & 5) ? 'SIM_FW' : 'REAL';
+
+/* ---------- Estructura de la interfaz ---------- */
+document.querySelector('.brand-title').innerHTML = 'IdeaSense <span>Agro</span>';
+const NAV = [['agroDash','fa-seedling','Dashboard Agro'],['agroAn','fa-chart-line','Análisis ambiental'],['agroExp','fa-vial','Experimentos Agro'],['agroML','fa-brain','IA y datos ambientales']];
+const menu = document.querySelector('.nav-menu');
+menu.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+menu.insertAdjacentHTML('afterbegin', NAV.map((n, i) => `<li class="nav-item${i ? '' : ' active'}" onclick="switchTab('${n[0]}')"><i class="fa-solid ${n[1]}"></i> ${n[2]}</li>`).join('') + '<li class="nav-sep">Más módulos</li>');
+document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+const NOTE = 'Mediciones del <b>aire alrededor de IdeaBoard</b>. No miden humedad del suelo ni diagnostican la salud de una planta.';
+const thRow = k => `<tr><td>${V[k].n} (${V[k].u})</td><td><input class="form-control ag-th" type="number" step="any" data-k="${k}" data-i="0" value="${A.cfg[k][0]}"> a <input class="form-control ag-th" type="number" step="any" data-k="${k}" data-i="1" value="${A.cfg[k][1]}"></td></tr>`;
+$('agroDash') || document.querySelector('.content-area').insertAdjacentHTML('afterbegin', `
+<div id="agroDash" class="tab-content active">
+  <div id="agBanner" class="ag-banner">Esperando conexión…</div>
+  <div class="grid grid-3">${K.map(k => `<div class="card ag-kpi"><div class="card-title">${V[k].n} <i class="fa-solid ${V[k].i}"></i></div>
+    <div class="ag-big" id="agV_${k}">--<span>${V[k].u}</span></div><div class="ag-chip" id="agS_${k}">Sin datos</div><div class="ag-sub" id="agT_${k}"></div></div>`).join('')}</div>
+  <div class="grid ag-row2">
+    <div class="card"><div class="card-title">Historial en tiempo real (1 muestra/s, últimos 5 min)</div><div class="ag-chartbox"><canvas id="agChart"></canvas></div></div>
+    <div class="card"><div class="card-title">Estado de IdeaBoard</div><div class="table-responsive"><table><tbody>
+      <tr><td>Conexión BLE</td><td id="agBle">--</td></tr><tr><td>Última lectura</td><td id="agAge">--</td></tr>
+      <tr><td>Origen de los datos</td><td id="agSrc">--</td></tr><tr><td>SHT30 (temp./humedad)</td><td id="agSht">--</td></tr>
+      <tr><td>LTR-303 (luz)</td><td id="agLtr">--</td></tr></tbody></table></div>
+      <div class="ag-note">${NOTE} La luz se muestra en cuentas del sensor (CH0), sin calibrar a lux. La temperatura puede verse influida por el calor de la propia placa.</div></div>
+  </div>
+</div>
+<div id="agroAn" class="tab-content">
+  <div class="grid grid-2">
+    <div class="card"><div class="card-title">Estadísticas y tendencia (sesión actual)</div><div class="table-responsive"><table id="agStats"></table></div><div class="ag-note">${NOTE}</div></div>
+    <div class="card"><div class="card-title">Rangos configurables</div><div class="table-responsive"><table><tbody>${K.map(thRow).join('')}</tbody></table></div>
+      <div class="ag-note">Valores iniciales de ejemplo para la demostración; ajústelos según el caso.</div></div>
+  </div>
+  <div class="grid grid-2" style="margin-top:20px">
+    <div class="card"><div class="card-title">Alertas descriptivas</div><div id="agAlerts"><div class="ag-note">Sin alertas.</div></div></div>
+    <div class="card"><div class="card-title">Comparar mediciones</div>
+      <div style="display:flex;gap:10px;margin-bottom:10px"><button class="btn" onclick="agro.cmp('A')">Guardar punto A</button><button class="btn btn-outline" onclick="agro.cmp('B')">Guardar punto B</button></div>
+      <div class="table-responsive"><table id="agCmp"></table></div><div class="ag-note">Cada punto es el promedio de los últimos ≤10 s. Ej.: A = al sol, B = bajo sombra.</div></div>
+  </div>
+</div>
+<div id="agroExp" class="tab-content">
+  <div class="card" style="margin-bottom:20px"><div class="card-title">Nuevo experimento</div>
+    <div class="grid grid-2"><div class="form-group"><label>Nombre</label><input id="agExpName" class="form-control" placeholder="Ej: Sol vs. sombra"></div>
+    <div class="form-group"><label>Observaciones</label><input id="agExpNotes" class="form-control" placeholder="Ej: Sensor a 30 cm del cultivo"></div></div>
+    <div class="form-group"><label>Variables a registrar</label><div class="checkbox-group">${K.map(k => `<label class="checkbox-item"><input type="checkbox" data-v="${k}" checked> ${V[k].n} (${V[k].u})</label>`).join('')}</div></div>
+    <button class="btn" id="agRecBtn" onclick="agro.rec()"><i class="fa-solid fa-play"></i> Iniciar registro</button> <span id="agRecInfo" class="ag-rec"></span></div>
+  <div class="card"><div class="card-title">Historial de experimentos</div><div class="table-responsive"><table id="agExpTbl"></table></div></div>
+</div>
+<div id="agroML" class="tab-content">
+  <div class="grid grid-2">
+    <div class="card"><div class="card-title">Qué hace hoy el AI Lab</div><p>El clasificador <b>k-NN</b> del AI Lab trabaja con datos del <b>acelerómetro y giroscopio</b> (IMU) para reconocer movimientos de la placa. No analiza variables ambientales ni se usa para diagnóstico agrícola.</p></div>
+    <div class="card"><div class="card-title">Potencial con datos ambientales</div><p>Si IdeaBoard registra temperatura, humedad relativa y luz durante horas, días o semanas, esos datos exportados en CSV pueden alimentar técnicas de Machine Learning: detectar patrones día/noche, comparar zonas (sol/sombra, invernadero/exterior), encontrar lecturas anómalas o anticipar tendencias.</p></div>
+    <div class="card"><div class="card-title">Cómo sería el flujo</div><p>1) Registrar experimentos en distintos periodos. 2) Exportar CSV. 3) Calcular características por ventana (promedio, mínimo, máximo, pendiente). 4) Entrenar y validar un modelo fuera de esta página (Python/Excel). 5) Contrastar con referencias de una persona experta.</p></div>
+    <div class="card"><div class="card-title">Límites a tener presentes</div><p>Esta plataforma <b>no entrena modelos con datos ambientales</b>: esta sección es solo explicativa. El kit no incluye sensor de humedad de suelo; la luz se reporta sin calibrar; y cualquier conclusión agronómica requiere más datos, otros sensores y validación profesional.</p></div>
+  </div>
+</div>`);
+
+/* ---------- Gráfico ---------- */
+let ch = null;
+if (typeof Chart !== 'undefined') {
+  const ds = (label, c, y) => ({ label, borderColor: c, yAxisID: y, data: [], pointRadius: 0, tension: .3 });
+  ch = new Chart($('agChart'), { type: 'line', data: { labels: [], datasets: [ds('Temp (°C)', '#f59e0b', 'y'), ds('Humedad (%)', '#38bdf8', 'y'), ds('Luz (cuentas ALS)', '#a3e635', 'y1')] },
+    options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { y: { title: { display: true, text: '°C / %' } }, y1: { position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'cuentas' } } } } });
+} else $('agChart').parentElement.innerHTML = '<div class="ag-note">Chart.js no está disponible (se requiere internet para cargarlo).</div>';
+
+/* ---------- Cálculos ---------- */
+function slope(k) { const s = A.buf.slice(-60), n = s.length; if (n < 5) return null; let sx = 0, sy = 0, sxy = 0, sxx = 0;
+  s.forEach((r, i) => { sx += i; sy += r[k]; sxy += i * r[k]; sxx += i * i; }); return 60 * (n * sxy - sx * sy) / (n * sxx - sx * sx); }
+function trend(k) { const m = slope(k); return m === null ? 'Tendencia: recopilando datos…' : Math.abs(m) < V[k].e ? '→ Estable' : `${m > 0 ? '▲' : '▼'} ${Math.abs(m).toFixed(V[k].d)} ${V[k].u}/min`; }
+const col = k => A.buf.map(r => r[k]);
+
+/* ---------- Render ---------- */
+function banner() {
+  const b = $('agBanner'), conn = typeof state !== 'undefined' && state.connected, demo = typeof state !== 'undefined' && state.demoMode;
+  let c = '', t = '';
+  if (demo) { c = 'demo'; t = '⚠ MODO DEMO: datos generados por el navegador. NO provienen de sensores físicos.'; }
+  else if (!conn) { t = 'Esperando conexión: pulse «Conectar IdeaBoard» (Chrome o Edge).'; }
+  else if (Date.now() - A.seen > 3000) { c = 'warn'; t = 'Conectado, pero sin datos recientes de la placa.'; }
+  else if (!A.hasSim) { c = 'warn'; t = 'Conectado. Este firmware no incluye el indicador de simulación: no se puede verificar que las lecturas sean reales.'; }
+  else if (A.sim & 5) { c = 'sim'; t = '⚠ La placa no detectó ' + [(A.sim & 1) ? 'el SHT30 (temp./humedad)' : '', (A.sim & 4) ? 'el LTR-303 (luz)' : ''].filter(Boolean).join(' ni ') + ': esos valores son SIMULADOS por el firmware. Revise la conexión del sensor.'; }
+  else { c = 'real'; t = '✔ Lecturas reales de los sensores de IdeaSense Explorer.'; }
+  b.className = 'ag-banner ' + c; b.textContent = t;
+  const age = A.seen ? ((Date.now() - A.seen) / 1000).toFixed(1) + ' s' : '--', s = src(), ok = (bit, fl) => demo ? 'DEMO (simulado)' : !A.hasSim ? 'Sin verificar' : (A.sim & bit) ? 'NO detectado (simulado)' : 'Lectura real';
+  $('agBle').textContent = conn ? 'Conectado' : 'Desconectado'; $('agAge').textContent = age;
+  $('agSrc').textContent = { REAL: 'REAL', DEMO: 'DEMO', SIM_FW: 'SIMULADO (firmware)', REAL_NO_VERIF: 'Real (sin verificar)' }[s];
+  $('agSht').textContent = ok(1); $('agLtr').textContent = ok(4);
+}
+function live() {
+  const d = A.cur; if (!d) return;
+  K.forEach(k => { const v = +d[k], s = stat(k, v);
+    $('agV_' + k).innerHTML = `${fmt(k, v)}<span>${V[k].u}</span>`; const c = $('agS_' + k); c.className = 'ag-chip ag-' + s; c.textContent = SL[s];
+    $('agT_' + k).textContent = trend(k) + ` · rango ${A.cfg[k][0]}–${A.cfg[k][1]}`; });
+}
+function analysis() {
+  if (!A.buf.length) return;
+  $('agStats').innerHTML = '<thead><tr><th>Variable</th><th>Actual</th><th>Mín</th><th>Prom</th><th>Máx</th><th>Tendencia</th><th>Estado</th></tr></thead><tbody>' + K.map(k => {
+    const c = col(k), v = c[c.length - 1]; return `<tr><td>${V[k].n}</td><td>${fmt(k, v)}</td><td>${fmt(k, Math.min(...c))}</td><td>${fmt(k, c.reduce((a, b) => a + b, 0) / c.length)}</td><td>${fmt(k, Math.max(...c))}</td><td>${trend(k)}</td><td>${SL[stat(k, v)]}</td></tr>`; }).join('') + '</tbody>';
+}
+function alerts() {
+  const v = A.cur; K.forEach(k => { const s = stat(k, +v[k]), p = A.st[k]; A.st[k] = s; if (p === undefined || p === s) return;
+    const m = s === 'ok' ? `${V[k].n} volvió al rango configurado (${A.cfg[k][0]}–${A.cfg[k][1]} ${V[k].u}).`
+      : `${V[k].n} = ${fmt(k, +v[k])} ${V[k].u}, ${s === 'high' ? 'por encima' : 'por debajo'} del rango configurado (${A.cfg[k][0]}–${A.cfg[k][1]}). Es una condición del aire alrededor de la placa; no indica por sí sola el estado de una planta.`;
+    A.alerts.unshift({ ts: new Date().toLocaleTimeString(), m, ok: s === 'ok' }); A.alerts.length = Math.min(A.alerts.length, 20); if (typeof logHistory === 'function') logHistory('AGRO', m); });
+  $('agAlerts').innerHTML = A.alerts.length ? A.alerts.map(a => `<div class="ag-alert ${a.ok ? 'back' : ''}"><b>${a.ts}</b> — ${esc(a.m)}</div>`).join('') : '<div class="ag-note">Sin alertas.</div>';
+}
+function cmpRender() {
+  const a = A.cmp.A, b = A.cmp.B; if (!a && !b) { $('agCmp').innerHTML = ''; return; }
+  $('agCmp').innerHTML = `<thead><tr><th>Variable</th><th>A${a ? ' · ' + esc(a.label) : ''}</th><th>B${b ? ' · ' + esc(b.label) : ''}</th><th>Δ (B−A)</th></tr></thead><tbody>` + K.map(k => `<tr><td>${V[k].n}</td><td>${a ? fmt(k, a[k]) : '--'}</td><td>${b ? fmt(k, b[k]) : '--'}</td><td>${a && b ? ((b[k] - a[k] >= 0 ? '+' : '') + fmt(k, b[k] - a[k])) : '--'}</td></tr>`).join('') + '</tbody>';
+}
+function expTable() {
+  $('agExpTbl').innerHTML = '<thead><tr><th>Nombre</th><th>Variables</th><th>Muestras</th><th>Origen</th><th>Fecha</th><th></th></tr></thead><tbody>' + (A.exps.map(e => `<tr><td>${esc(e.name)}</td><td>${e.vars.map(k => V[k].n).join(', ')}</td><td>${e.rows.length}</td><td>${[...new Set(e.rows.map(r => r.src))].join('/')}</td><td>${esc(e.date)}</td>
+    <td><button class="btn btn-sm" onclick="agro.csv(${e.id})"><i class="fa-solid fa-download"></i> CSV</button> <button class="btn btn-outline btn-danger btn-sm" onclick="agro.del(${e.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('') || '<tr><td colspan="6">Sin experimentos guardados.</td></tr>') + '</tbody>';
+}
+
+/* ---------- Datos entrantes (se engancha a la función original sin reemplazarla) ---------- */
+const orig = window.processIncomingTelemetry;
+window.processIncomingTelemetry = function (d) {
+  orig(d); A.cur = d; A.seen = Date.now(); A.hasSim = 'sim' in d; A.sim = d.sim | 0;
+  if (Date.now() - A.lastUi > 250) { A.lastUi = Date.now(); live(); banner(); }
+  if (Date.now() - A.lastS >= 1000) { A.lastS = Date.now(); sample(); }
+};
+function sample() {
+  const d = A.cur, r = { ts: Date.now(), t: +d.t, h: +d.h, l: +d.l, src: src() };
+  A.buf.push(r); if (A.buf.length > 900) A.buf.shift();
+  if (ch) { const lab = new Date(r.ts).toLocaleTimeString(); if (ch.data.labels.length >= 300) { ch.data.labels.shift(); ch.data.datasets.forEach(x => x.data.shift()); }
+    ch.data.labels.push(lab); K.forEach((k, i) => ch.data.datasets[i].data.push(r[k])); ch.update(); }
+  if (A.rec) { const row = { ts: r.ts, el: Math.round((r.ts - A.rec.t0) / 1000), src: r.src }; A.rec.vars.forEach(k => row[k] = r[k]); A.rec.rows.push(row);
+    $('agRecInfo').textContent = '● Grabando: ' + A.rec.rows.length + ' muestras'; }
+  alerts(); analysis();
+}
+setInterval(banner, 1000);
+
+/* ---------- Acciones ---------- */
+const q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+window.agro = {
+  cmp(w) { const s = A.buf.slice(-10); if (!s.length) return alert('Aún no hay mediciones. Conecte IdeaBoard primero.');
+    const o = { label: prompt('Etiqueta del punto ' + w + ' (ej. Sol, Sombra):', w) || w, src: src() }; K.forEach(k => o[k] = s.reduce((a, r) => a + r[k], 0) / s.length); A.cmp[w] = o; cmpRender(); },
+  rec() {
+    if (!A.rec) { if (!A.cur) return alert('Conecte IdeaBoard (o active el Modo DEMO, que quedará marcado en el CSV).');
+      const vars = [...document.querySelectorAll('#agroExp [data-v]:checked')].map(e => e.dataset.v); if (!vars.length) return alert('Seleccione al menos una variable.');
+      A.rec = { t0: Date.now(), vars, rows: [], name: $('agExpName').value.trim() || 'Experimento ' + (A.exps.length + 1), notes: $('agExpNotes').value.trim() };
+      $('agRecBtn').innerHTML = '<i class="fa-solid fa-stop"></i> Detener y guardar';
+    } else { const r = A.rec; A.rec = null; $('agRecBtn').innerHTML = '<i class="fa-solid fa-play"></i> Iniciar registro'; $('agRecInfo').textContent = '';
+      A.exps.unshift({ id: Date.now(), name: r.name, notes: r.notes, vars: r.vars, rows: r.rows, date: new Date().toLocaleString() }); A.exps.length = Math.min(A.exps.length, 20); sv('agroExps', A.exps); expTable(); }
+  },
+  csv(id) { const e = A.exps.find(x => x.id === id); if (!e || !e.rows.length) return alert('Este experimento no tiene muestras.');
+    const body = e.rows.map(r => [new Date(r.ts).toISOString(), r.el, ...K.map(k => e.vars.includes(k) ? r[k] : ''), r.src, q(e.name), q(e.notes)].join(',')).join('\n');
+    downloadCSV('\ufefftimestamp_iso,segundos,temperatura_C,humedad_rel_pct,luz_ALS_cuentas,origen_datos,experimento,notas\n' + body, 'agro_' + e.id + '.csv'); },
+  del(id) { if (confirm('¿Eliminar este experimento?')) { A.exps = A.exps.filter(x => x.id !== id); sv('agroExps', A.exps); expTable(); } }
+};
+$('agroAn').addEventListener('change', e => { const k = e.target.dataset.k; if (!k) return; const v = parseFloat(e.target.value); if (!Number.isFinite(v)) return;
+  A.cfg[k][+e.target.dataset.i] = v; sv('agroCfg', A.cfg); live(); if (A.cur) { A.st = {}; } });
+
+/* Detecta desconexión de la placa (el original no actualizaba la UI) */
+const origConnect = window.connectBLE;
+window.connectBLE = async function () { await origConnect(); const dv = state.bleDevice;
+  if (dv && !dv._agro) { dv._agro = 1; dv.addEventListener('gattserverdisconnected', () => { state.connected = false; updateConnectionUI(false); logConsole('IdeaBoard desconectada.'); banner(); }); } };
+expTable(); banner();
+})();
+  </script>
+</body>
+</html>
